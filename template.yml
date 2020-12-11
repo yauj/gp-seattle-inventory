@@ -38,9 +38,18 @@ Resources:
       CodeUri: ./
       Handler: src/handlers/hello-from-lambda.helloFromLambdaHandler
       Runtime: nodejs10.x
-      MemorySize: 128
-      Timeout: 60
       Description: A Lambda function that returns a static string.
       Policies:
         # Give Lambda basic execution Permission to the helloFromLambda
         - AWSLambdaBasicExecutionRole
+  
+  addItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/addItem.handler
+      Runtime: nodejs10.x
+      MemorySize: 128
+      Timeout: 60
+      Description: Adds item to inventory.
+      Role: arn:aws:iam::542207157535:role/LambdaQLDB
