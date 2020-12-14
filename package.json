@@ -4,14 +4,13 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
+        "@types/node": "^12.0.2",
+        "amazon-qldb-driver-nodejs": "2.0.0",
+        "aws-sdk": "^2.564.0",
+        "ion-js": "~4.0.0",
+        "jsbi": "^3.1.1"
     },
     "devDependencies": {
-        "amazon-qldb-driver-nodejs": "^2.0.0",
-        "aws-sdk": "^2.655.0",
-        "ion-js": "^4.1.0",
-        "jsbi": "^3.1.4",
-        "@types/aws-lambda": "^8.10.66",
-        "@types/node": "^14.14.13",
         "typescript": "^4.1.3" 
     },
     "scripts": {
