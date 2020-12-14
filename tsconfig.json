@@ -2,9 +2,9 @@
     "compilerOptions": {
       "module": "CommonJS",
       "target": "ES2018",
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
+      "noImplicitAny": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
       "outDir": "./src"
     },
     "include": ["src-ts/**/*"]
