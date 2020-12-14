@@ -47,9 +47,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: src/handlers/addItem.handler
+      Handler: src/handlers/add-item.handler
       Runtime: nodejs10.x
-      MemorySize: 128
-      Timeout: 60
       Description: Adds item to inventory.
-      Role: arn:aws:iam::542207157535:role/LambdaQLDB
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonQLDBFullAccess
