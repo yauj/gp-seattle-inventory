@@ -34,6 +34,7 @@ Resources:
   addItem:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: gp-seattle-inventory-addItem
       CodeUri: ./src/handlers
       Handler: add-item.handler
       Runtime: nodejs10.x
