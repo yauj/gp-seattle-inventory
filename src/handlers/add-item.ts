@@ -1,10 +1,9 @@
 /**
  * Adds item to inventory.
  */
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import {executeLambda, insertItem, queryByName, updateItemByName} from "../qldb/apis";
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: any): Promise<any> => {
     executeLambda(async (tx) => {
         queryByName(tx, event.name).then((result) => {
             var resultList = result.getResultList();
