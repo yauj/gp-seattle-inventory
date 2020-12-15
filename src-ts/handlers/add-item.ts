@@ -11,11 +11,11 @@ export const handler = async (event: any): Promise<any> => {
             var resultList: dom.Value[] = result.getResultList();
             if (resultList.length === 0) {
                 // Record doesn't exist. Create new document.
-                var doc = {
-                    name: event.name,
-                    locations: [event.location],
-                    tags: event.tags,
-                    notes: event.notes
+                var doc: Record<string, any> = {
+                    "name": event.name,
+                    "locations": [event.location],
+                    "tags": event.tags,
+                    "notes": event.notes
                 };
                 return insertItem(tx, doc);
             } else {

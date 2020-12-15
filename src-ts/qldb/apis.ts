@@ -22,7 +22,7 @@ export async function executeLambda(
     }
 }
 
-export async function insertItem(tx: TransactionExecutor, doc: Object): Promise<Result> {
+export async function insertItem(tx: TransactionExecutor, doc: Record<string, any>): Promise<Result> {
     return tx.execute(`INSERT INTO ${TABLE} ?`, doc);
 }
 
