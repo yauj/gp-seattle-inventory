@@ -26,6 +26,10 @@ export async function insertItem(tx: TransactionExecutor, doc: Object): Promise<
     return tx.execute(`INSERT INTO ${TABLE} ?`, doc);
 }
 
+export async function queryAll(tx: TransactionExecutor): Promise<Result> {
+    return tx.execute(`SELECT * FROM ${TABLE}`);
+}
+
 export async function queryByName(tx: TransactionExecutor, name: String): Promise<Result> {
     return tx.execute(`SELECT * FROM ${TABLE} WHERE name = ${name}`);
 }

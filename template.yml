@@ -42,3 +42,15 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonQLDBFullAccess
+
+  addItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: gp-seattle-inventory-listAll
+      CodeUri: ./
+      Handler: ./src/handlers/list-all.handler
+      Runtime: nodejs10.x
+      Description: Query Inventory Table
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonQLDBFullAccess
