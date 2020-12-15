@@ -9,10 +9,14 @@ export async function executeLambda(
     const driver = new QldbDriver(LEDGER_NAME);
 
     try {
-        return driver.executeLambda(txLambda);
-    } catch (e) {
-        console.error(e);
-        throw new e;
+        return driver.executeLambda(async (tx: TransactionExecutor) => {
+            try {
+                return txLambda(tx);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
     } finally {
         driver.close();
     }
