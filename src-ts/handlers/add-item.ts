@@ -7,7 +7,7 @@ import { executeLambda, insertItem, queryByName, updateItemByName } from "../qld
 
 export const handler = async (event: any): Promise<any> => {
     const returnVal: Result = await executeLambda(async (tx: TransactionExecutor) => {
-        queryByName(tx, event.name).then((result: Result) => {
+        return queryByName(tx, event.name).then((result: Result) => {
             var resultList: dom.Value[] = result.getResultList();
             if (resultList.length === 0) {
                 // Record doesn't exist. Create new document.

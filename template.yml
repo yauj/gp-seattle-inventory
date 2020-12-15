@@ -43,7 +43,7 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AmazonQLDBFullAccess
 
-  addItem:
+  listAll:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: gp-seattle-inventory-listAll
