@@ -3,10 +3,10 @@
  */
 import { Result } from "amazon-qldb-driver-nodejs";
 import { dom } from "ion-js";
-import {executeLambda, insertItem, queryByName, updateItemByName} from "../qldb/apis";
+import { executeLambda, insertItem, queryByName, updateItemByName } from "../qldb/apis";
 
 export const handler = async (event: any): Promise<any> => {
-    executeLambda(async (tx) => {
+    const returnVal: Result = await executeLambda(async (tx) => {
         queryByName(tx, event.name).then((result: Result) => {
             var resultList: dom.Value[] = result.getResultList();
             if (resultList.length === 0) {
@@ -27,5 +27,7 @@ export const handler = async (event: any): Promise<any> => {
         })
     });
 
-    return {};
+    return {
+        "message": returnVal
+    };
 }
