@@ -16,7 +16,7 @@ export const handler: APIGatewayProxyHandler = (
     var input = JSON.parse(event.body)
     var name: String = input.name
     var notes: String = 'notes' in input ? input.notes : ""
-    var tags: String[] = 'tags' in tags ? input.tags : []
+    var tags: String[] = 'tags' in input ? input.tags : []
 
     createDescription(callback, name, notes, tags, undefined, (_: any) => {
         callback(undefined, {
