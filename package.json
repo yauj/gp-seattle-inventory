@@ -4,14 +4,13 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
+        "@types/aws-lambda": "8.10.3",
         "@types/node": "^12.0.2",
-        "amazon-qldb-driver-nodejs": "2.0.0",
-        "aws-sdk": "^2.564.0",
-        "ion-js": "~4.0.0",
-        "jsbi": "^3.1.1"
+        "aws-sdk": "^2.812.0",
+        "random-words": "^1.1.1"
     },
     "devDependencies": {
-        "typescript": "^4.1.3" 
+        "typescript": "^4.1.3"
     },
     "scripts": {
         "build": "tsc"

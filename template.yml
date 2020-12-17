@@ -31,6 +31,17 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
   
+  addDescription:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: ./src/handlers/add-description.handler
+      Runtime: nodejs10.x
+      Description: Add description of item family.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
+
   addItem:
     Type: AWS::Serverless::Function
     Properties:
@@ -40,15 +51,4 @@ Resources:
       Description: Adds item to inventory.
       Policies:
         - AWSLambdaBasicExecutionRole
-        - AmazonQLDBFullAccess
-
-  listAll:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: ./
-      Handler: ./src/handlers/list-all.handler
-      Runtime: nodejs10.x
-      Description: Query Inventory Table
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - AmazonQLDBFullAccess
+        - AmazonDynamoDBFullAccess
