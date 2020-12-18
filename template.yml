@@ -40,10 +40,10 @@ Resources:
       Runtime: nodejs10.x
       Description: Router to all SMS functions
       Events:
-        SMSTopic:
+        SMS:
           Type: SNS
           Properties:
-            Topic: !Sub 'arn:aws:sns:${AWS::Partition}:${AWS::AccountId}:GPSeattleInventoryTopic'
+            Topic: !Sub arn:aws:sns:${AWS::Partition}:${AWS::AccountId}:GPSeattleInventoryTopic
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
