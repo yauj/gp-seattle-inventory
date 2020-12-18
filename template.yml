@@ -39,6 +39,11 @@ Resources:
       Handler: ./src/handlers/router.handler
       Runtime: nodejs10.x
       Description: Router to all SMS functions
+      Events:
+        SMSTopic:
+          Type: SNS
+          Properties:
+            Topic: arn:aws:sns:${AWS::Partition}:${AWS::AccountId}:GPSeattleInventoryTopic
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
