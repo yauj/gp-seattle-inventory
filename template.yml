@@ -31,26 +31,13 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
   
-  addDescription:
+  router:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: addDescription
       CodeUri: ./
-      Handler: ./src/handlers/add-description.handler
+      Handler: ./src/handlers/router.handler
       Runtime: nodejs10.x
-      Description: Add description of item family.
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - AmazonDynamoDBFullAccess
-
-  addItem:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: addItem
-      CodeUri: ./
-      Handler: ./src/handlers/add-item.handler
-      Runtime: nodejs10.x
-      Description: Adds item to inventory.
+      Description: Router to all SMS functions
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess

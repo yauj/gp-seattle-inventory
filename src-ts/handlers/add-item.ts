@@ -1,49 +1,49 @@
-import { createItem, getDescription, appendToListDescription, createDescription } from "../ddb/apis";
-import { APIGatewayProxyEvent, APIGatewayProxyCallback, Context, APIGatewayProxyHandler } from "aws-lambda"
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { stringPromise } from "../utility";
+import {
+    appendToListDescription, createDescription, getDescription, createItem,
+    appendToScratchTransaction, createTransaction, deleteTransaction
+} from "../ddb/apis";
+import { DocumentClient, MapAttributeValue } from "aws-sdk/clients/dynamodb";
+
 var randomWords = require("random-words")
 
 /**
  * Adds item to item inventory table. Note that if there is no corresponding record in the
  * description table, then a blank description will be added to that table.
- * 
- * @param name Name of the item.
- * @param owner Name of the owner of the item or where the item is stored.
- * @param notes (Optional) Notes specific to this item.
  */
-export const handler: APIGatewayProxyHandler = (
-    event: APIGatewayProxyEvent,
-    _: Context,
-    callback: APIGatewayProxyCallback
-) => {
-    var input = JSON.parse(event.body)
-    var name: String = input.name
-    var owner: String = input.owner
-    var notes: String = 'notes' in input ? input.notes : ""
+export function addItemRouter(number: string, msgBody: string, scratch?: MapAttributeValue): Promise<string> {
+    if (scratch === undefined) {
+        return createTransaction(number, "add item")
+            .then(() => stringPromise("Name of item:"))
+    } else if (scratch.name === undefined) {
+        return appendToScratchTransaction(number, "name", msgBody)
+            .then(() => stringPromise("Owner of this item (or location it's normally stored):"))
+    } else if (scratch.owner === undefined) {
+        return appendToScratchTransaction(number, "owner", msgBody)
+            .then(() => stringPromise("Notes about this specific item:"))
+    } else {
+        var name: string = scratch.name.S
+        var owner: string = scratch.owner.S
+        var notes: string = msgBody
 
-    var id: String = randomWords({ exactly: 3, join: "-" })
+        return execute(name, owner, notes)
+            .then(() => deleteTransaction(number))
+            .then(() => stringPromise("Created Description for item."))
+    }
+}
 
-    // Create Item
-    createItem(callback, id, name, owner, notes, (_: any) => {
-        // Update Description with item
-        getDescription(callback, name, (data: DocumentClient.GetItemOutput) => {
+function execute(name: string, owner: string, notes: string): Promise<any> {
+    var id: string = randomWords({ exactly: 3, join: "-" })
+
+    return createItem(id, name, owner, notes)
+        .then(() => getDescription(name))
+        .then((data: DocumentClient.GetItemOutput) => {
             if (data.Item) {
                 // Description Exists, so just update id list
-                appendToListDescription(callback, name, "items", [id], (_: any) => {
-                    callback(undefined, {
-                        statusCode: 200,
-                        body: "SUCCESSFUL"
-                    })
-                })
+                return appendToListDescription(name, "items", [id])
             } else {
                 // No Existing Description, so create a new description
-                createDescription(callback, name, undefined, undefined, [id], (_: any) => {
-                    callback(undefined, {
-                        statusCode: 200,
-                        body: "SUCCESSFUL"
-                    })
-                })
+                return createDescription(name, undefined, undefined, [id])
             }
         })
-    })
 }

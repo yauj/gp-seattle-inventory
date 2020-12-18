@@ -1,27 +1,26 @@
-import { createDescription } from "../ddb/apis";
-import { APIGatewayProxyEvent, APIGatewayProxyCallback, Context, APIGatewayProxyHandler } from "aws-lambda"
+import { stringPromise } from "../utility"
+import { createDescription, appendToScratchTransaction, createTransaction, deleteTransaction } from "../ddb/apis";
+import { MapAttributeValue } from "aws-sdk/clients/dynamodb";
 
-/**
- * Adds description for item family.
- * 
- * @param name Name of item type. This needs to be unique.
- * @param notes (Optional) Other notes related to this item type.
- * @param tags (Optional) Tags to categorize item.
- */
-export const handler: APIGatewayProxyHandler = (
-    event: APIGatewayProxyEvent,
-    _: Context,
-    callback: APIGatewayProxyCallback
-) => {
-    var input = JSON.parse(event.body)
-    var name: String = input.name
-    var notes: String = 'notes' in input ? input.notes : ""
-    var tags: String[] = 'tags' in input ? input.tags : []
-
-    createDescription(callback, name, notes, tags, undefined, (_: any) => {
-        callback(undefined, {
-            statusCode: 200,
-            body: "SUCCESSFUL"
+export function addDescriptionRouter(number: string, msgBody: string, scratch?: MapAttributeValue): Promise<string> {
+    if (scratch === undefined) {
+        return createTransaction(number, "add description")
+            .then(() => stringPromise("Name of item:"))
+    } else if (scratch.name === undefined) {
+        return appendToScratchTransaction(number, "name", msgBody)
+            .then(() => stringPromise("Notes about this type of item:"))
+    } else if (scratch.notes === undefined) {
+        return appendToScratchTransaction(number, "notes", msgBody)
+            .then(() => stringPromise("Corresponding Tags (separated by commas):"))
+    } else {
+        var name: string = scratch.name.S
+        var notes: string = scratch.notes.S
+        var tags: string[] = msgBody.split(",").map((str: string) => {
+            return str.toLowerCase().trim()
         })
-    })
+
+        return createDescription(name, notes, tags)
+            .then(() => deleteTransaction(number))
+            .then(() => stringPromise("Created Description for item."))
+    }
 }
