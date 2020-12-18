@@ -43,7 +43,7 @@ Resources:
         SMSTopic:
           Type: SNS
           Properties:
-            Topic: arn:aws:sns:${AWS::Partition}:${AWS::AccountId}:GPSeattleInventoryTopic
+            Topic: !Sub 'arn:aws:sns:${AWS::Partition}:${AWS::AccountId}:GPSeattleInventoryTopic'
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
