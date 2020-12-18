@@ -4,7 +4,7 @@ import { PromiseResult } from "aws-sdk/lib/request";
 
 const DESCRIPTION_TABLE = "gp-seattle-inventory-description"
 const ITEMS_TABLE = "gp-seattle-inventory-items"
-const TRANSACTIONS_TABLE = "gp-seattle-inventory-items"
+const TRANSACTIONS_TABLE = "gp-seattle-inventory-transactions"
 
 const client: DocumentClient = new DocumentClient()
 
