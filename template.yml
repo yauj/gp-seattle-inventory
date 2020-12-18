@@ -34,6 +34,7 @@ Resources:
   router:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: gp-seattle-inventory-router
       CodeUri: ./
       Handler: ./src/handlers/router.handler
       Runtime: nodejs10.x

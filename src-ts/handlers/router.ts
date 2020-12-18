@@ -30,13 +30,13 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 
 function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): Promise<string> {
     if (txEntry.Item) {
-        if (msgBody === "cancel") {
+        if (msgBody.toLowerCase() === "cancel") {
             return stringPromise("No Request To Cancel")
-        } else if (msgBody === "add description") {
+        } else if (msgBody.toLowerCase() === "add description") {
             return addDescriptionRouter(number, msgBody)
-        } else if (msgBody === "add item") {
+        } else if (msgBody.toLowerCase() === "add item") {
             return addItemRouter(number, msgBody)
-        } else if (msgBody === "help") {
+        } else if (msgBody.toLowerCase() === "help") {
             return stringPromise("TODO: Implement Help Menu")
         } else {
             return stringPromise("TODO: Implement Bad Request")
