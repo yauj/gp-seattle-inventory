@@ -1,3 +1,5 @@
+# CodeBuild Spec
+
 version: 0.2
 phases:
   install:
