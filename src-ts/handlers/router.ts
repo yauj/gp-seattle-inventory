@@ -26,8 +26,6 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var responseOrigination = msg.destinationNumber
     var responseDestination = msg.originationNumber
 
-    console.log(record.Sns.Message)
-
     return getTransaction(responseDestination)
         .then((txEntry: GetItemOutput) => routeRequest(responseDestination, txEntry, msgBody))
         .catch(logDynamoDBError)
@@ -68,6 +66,8 @@ function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): 
  */
 function sendMessage(originationNumber: string, destinationNumber: string): (body: string) => Promise<any> {
     return (body: string) => {
+        console.log(body)
+
         var params: Pinpoint.Types.SendMessagesRequest = {
             ApplicationId: PINPOINT_APP_ID,
             MessageRequest: {
