@@ -22,10 +22,12 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var msg = JSON.parse(record.Sns.Message)
     var msgBody: string = msg.messageBody.toLowerCase()
 
-    return getTransaction(msg.destinationNumber)
-        .then((txEntry: GetItemOutput) => routeRequest(msg.destinationNumber, txEntry, msgBody))
+    console.log(record.Sns.Message)
+
+    return getTransaction(msg.originationNumber)
+        .then((txEntry: GetItemOutput) => routeRequest(msg.originationNumber, txEntry, msgBody))
         .catch(logDynamoDBError)
-        .then(sendMessage(msg.originationNumber, msg.destinationNumber))
+        .then(sendMessage(msg.originationNumber))
 }
 
 function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): Promise<string> {
@@ -60,13 +62,13 @@ function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): 
  * Function to send Pinpoint response. This is passed down to callbacks, and is the future that is
  * tracked by the top level lambda method, to ensure that all callbacks have been called.
  */
-function sendMessage(originationNumber: string, destinationNumber: string): (body: string) => Promise<any> {
+function sendMessage(number: string): (body: string) => Promise<any> {
     return (body: string) => {
         var params: Pinpoint.Types.SendMessagesRequest = {
             ApplicationId: process.env.ApplicationId,
             MessageRequest: {
                 Addresses: {
-                    [originationNumber]: {
+                    [number]: {
                         ChannelType: 'SMS'
                     }
                 },
@@ -74,7 +76,7 @@ function sendMessage(originationNumber: string, destinationNumber: string): (bod
                     SMSMessage: {
                         Body: body,
                         MessageType: 'PROMOTIONAL',
-                        OriginationNumber: destinationNumber
+                        OriginationNumber: number
                     }
                 }
             }
@@ -82,7 +84,7 @@ function sendMessage(originationNumber: string, destinationNumber: string): (bod
     
         return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
             if (err) {
-                console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
+                console.error("Error encountered when attempting to send to " + number + "\n" + err.message)
             }
         }).promise()
     }
