@@ -1,6 +1,5 @@
 import { addDescriptionRouter } from "./add-description"
 import { addItemRouter } from "./add-item";
-import { stringPromise } from "../utility";
 import { deleteTransaction, getTransaction } from "../ddb/apis"
 import { SNSEvent, SNSEventRecord, SNSHandler, Context } from "aws-lambda"
 import { AWSError, Pinpoint } from "aws-sdk"
@@ -16,46 +15,48 @@ export const handler: SNSHandler = async (event: SNSEvent, context: Context) => 
     await Promise.all(event.Records.map(await processRecord))
 }
 
+// TODO: Fix stringPromise
+
 /**
  * Function to route requests
  */
 function processRecord(record: SNSEventRecord): Promise<any> {
-    var msg = JSON.parse(record.Sns.Message)
-    var msgBody: string = msg.messageBody.toLowerCase()
+    var message = JSON.parse(record.Sns.Message)
+    var request: string = message.messageBody.toLowerCase()
 
-    var responseOrigination = msg.destinationNumber
-    var responseDestination = msg.originationNumber
+    var responseOrigination = message.destinationNumber
+    var responseDestination = message.originationNumber
 
     return getTransaction(responseDestination)
-        .then((txEntry: GetItemOutput) => routeRequest(responseDestination, txEntry, msgBody))
+        .then((txEntry: GetItemOutput) => routeRequest(txEntry, responseDestination, request))
         .catch(logDynamoDBError)
-        .then(sendMessage(responseOrigination, responseDestination))
+        .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
-function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): Promise<string> {
+function routeRequest(txEntry: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
     if (txEntry.Item) {
-        if (msgBody.toLowerCase() === "cancel") {
-            return stringPromise("No Request To Cancel")
-        } else if (msgBody.toLowerCase() === "add description") {
-            return addDescriptionRouter(number, msgBody)
-        } else if (msgBody.toLowerCase() === "add item") {
-            return addItemRouter(number, msgBody)
-        } else if (msgBody.toLowerCase() === "help") {
-            return stringPromise("TODO: Implement Help Menu")
+        if (request.toLowerCase() === "cancel") {
+            return "No Request To Cancel"
+        } else if (request.toLowerCase() === "add description") {
+            return addDescriptionRouter(number, request)
+        } else if (request.toLowerCase() === "add item") {
+            return addItemRouter(number, request)
+        } else if (request.toLowerCase() === "help") {
+            return "TODO: Implement Help Menu"
         } else {
-            return stringPromise("TODO: Implement Bad Request")
+            return "TODO: Implement Bad Request"
         }
-    } else if (msgBody === "cancel") {
+    } else if (request === "cancel") {
         return deleteTransaction(number)
-            .then(() => stringPromise("Request Cancelled"))
+            .then(() => { return "Request Cancelled" })
     } else {
         if (txEntry.Item.type.S === "add description") {
-            return addDescriptionRouter(number, msgBody, txEntry.Item.scratch.M)
+            return addDescriptionRouter(number, request, txEntry.Item.scratch.M)
         } else if (txEntry.Item.type.S === "add item") {
-            return addItemRouter(number, msgBody, txEntry.Item.scratch.M)
+            return addItemRouter(number, request, txEntry.Item.scratch.M)
         } else {
             return deleteTransaction(number)
-                .then(() => stringPromise("Current Request Type is Invalid. Deleting Transaction."))
+                .then(() => { return "Current Request Type is Invalid. Deleting Transaction." })
         }
     }
 }
@@ -64,41 +65,35 @@ function routeRequest(number: string, txEntry: GetItemOutput, msgBody: string): 
  * Function to send Pinpoint response. This is passed down to callbacks, and is the future that is
  * tracked by the top level lambda method, to ensure that all callbacks have been called.
  */
-function sendMessage(originationNumber: string, destinationNumber: string): (body: string) => Promise<any> {
-    return (body: string) => {
-        console.log(body)
-
-        var params: Pinpoint.Types.SendMessagesRequest = {
-            ApplicationId: PINPOINT_APP_ID,
-            MessageRequest: {
-                Addresses: {
-                    [destinationNumber]: {
-                        ChannelType: 'SMS'
-                    }
-                },
-                MessageConfiguration: {
-                    SMSMessage: {
-                        Body: body,
-                        MessageType: 'PROMOTIONAL',
-                        OriginationNumber: originationNumber,
-                        SenderId: 'GP Seattle Inventory'
-                    }
+function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
+    var params: Pinpoint.Types.SendMessagesRequest = {
+        ApplicationId: PINPOINT_APP_ID,
+        MessageRequest: {
+            Addresses: {
+                [destinationNumber]: {
+                    ChannelType: 'SMS'
+                }
+            },
+            MessageConfiguration: {
+                SMSMessage: {
+                    Body: response,
+                    MessageType: 'PROMOTIONAL',
+                    OriginationNumber: originationNumber,
+                    SenderId: 'GP Seattle Inventory'
                 }
             }
         }
-    
-        return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
-            if (err) {
-                console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
-            }
-        }).promise()
     }
+
+    return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
+        if (err) {
+            console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
+        }
+    }).promise()
 }
 
-function logDynamoDBError(): (err: AWSError) => Promise<string> {
-    return (err: AWSError) => {
-        var errMsg: string = "Error Encountered with DynamoDB Client: " + JSON.stringify(err, null, 2)
-        console.error(errMsg)
-        return stringPromise(errMsg)
-    }
+function logDynamoDBError(err: AWSError): string {
+    var errMsg: string = "Error Encountered with DynamoDB Client: " + JSON.stringify(err, null, 2)
+    console.error(errMsg)
+    return errMsg
 }
