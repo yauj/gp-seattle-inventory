@@ -29,13 +29,25 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var responseDestination = message.originationNumber
 
     return getTransaction(responseDestination)
-        .then((result: PromiseResult<GetItemOutput, AWSError>) => routeRequest(result, responseDestination, request))
+        .then((txItem: GetItemOutput) => routeRequest(txItem, responseDestination, request))
         .catch(logError)
         .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
-function routeRequest(result: PromiseResult<GetItemOutput, AWSError>, number: string, request: string): string | PromiseLike<string> {
-    if (result.Item) {
+function routeRequest(txItem: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
+    if (txItem.Item) {
+        if (request === "cancel") {
+            return deleteTransaction(number)
+                .then(() => "Request Cancelled")
+        } else if (txItem.Item.type.S === "add description") {
+            return addDescriptionRouter(number, request, txItem.Item.scratch.M)
+        } else if (txItem.Item.type.S === "add item") {
+            return addItemRouter(number, request, txItem.Item.scratch.M)
+        } else {
+            return deleteTransaction(number)
+                .then(() => "Current Request Type is Invalid. Deleting Transaction.")
+        }
+    } else {
         if (request.toLowerCase() === "cancel") {
             return "No Request To Cancel"
         } else if (request.toLowerCase() === "add description") {
@@ -46,18 +58,6 @@ function routeRequest(result: PromiseResult<GetItemOutput, AWSError>, number: st
             return "TODO: Implement Help Menu"
         } else {
             return "TODO: Implement Bad Request"
-        }
-    } else if (request === "cancel") {
-        return deleteTransaction(number)
-            .then(() => "Request Cancelled")
-    } else {
-        if (result.Item.type.S === "add description") {
-            return addDescriptionRouter(number, request, result.Item.scratch.M)
-        } else if (result.Item.type.S === "add item") {
-            return addItemRouter(number, request, result.Item.scratch.M)
-        } else {
-            return deleteTransaction(number)
-                .then(() => "Current Request Type is Invalid. Deleting Transaction.")
         }
     }
 }
@@ -94,8 +94,7 @@ function sendMessage(response: string, originationNumber: string, destinationNum
 }
 
 function logError(err: any): string {
-    console.log(err)
-    var errMsg: string = "Error Encountered: " + JSON.stringify(err, null, 2)
+    var errMsg: string = "Error Encountered: " + err
     console.error(errMsg)
     return errMsg
 }

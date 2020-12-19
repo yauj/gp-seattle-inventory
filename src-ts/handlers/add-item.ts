@@ -13,13 +13,13 @@ var randomWords = require("random-words")
 export function addItemRouter(number: string, request: string, scratch?: MapAttributeValue): Promise<string> {
     if (scratch === undefined) {
         return createTransaction(number, "add item")
-            .then(() => { return "Name of item:" })
+            .then(() => "Name of item:")
     } else if (scratch.name === undefined) {
         return appendToScratchTransaction(number, "name", request)
-            .then(() => { return "Owner of this item (or location it's normally stored):" })
+            .then(() => "Owner of this item (or location it's normally stored):")
     } else if (scratch.owner === undefined) {
         return appendToScratchTransaction(number, "owner", request)
-            .then(() => { return "Notes about this specific item:" })
+            .then(() => "Notes about this specific item:")
     } else {
         var name: string = scratch.name.S
         var owner: string = scratch.owner.S
@@ -27,7 +27,7 @@ export function addItemRouter(number: string, request: string, scratch?: MapAttr
 
         return execute(name, owner, notes)
             .then(() => deleteTransaction(number))
-            .then(() => { return "Created Description for item." })
+            .then(() => "Created Description for item.")
     }
 }
 
