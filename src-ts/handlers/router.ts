@@ -4,6 +4,7 @@ import { deleteTransaction, getTransaction } from "../ddb/apis"
 import { SNSEvent, SNSEventRecord, SNSHandler, Context } from "aws-lambda"
 import { AWSError, Pinpoint } from "aws-sdk"
 import { GetItemOutput } from "aws-sdk/clients/dynamodb"
+import { PromiseResult } from "aws-sdk/lib/request";
 
 const PINPOINT_APP_ID: string = "0ca91d5a35c8404cbfc39fa4d2818092"
 const pinpoint: Pinpoint = new Pinpoint()
@@ -28,13 +29,13 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var responseDestination = message.originationNumber
 
     return getTransaction(responseDestination)
-        .then((txEntry: GetItemOutput) => routeRequest(txEntry, responseDestination, request))
+        .then((result: PromiseResult<GetItemOutput, AWSError>) => routeRequest(result, responseDestination, request))
         .catch(logError)
         .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
-function routeRequest(txEntry: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
-    if (txEntry.Item) {
+function routeRequest(result: PromiseResult<GetItemOutput, AWSError>, number: string, request: string): string | PromiseLike<string> {
+    if (result.Item) {
         if (request.toLowerCase() === "cancel") {
             return "No Request To Cancel"
         } else if (request.toLowerCase() === "add description") {
@@ -48,15 +49,15 @@ function routeRequest(txEntry: GetItemOutput, number: string, request: string): 
         }
     } else if (request === "cancel") {
         return deleteTransaction(number)
-            .then(() => { return "Request Cancelled" })
+            .then(() => "Request Cancelled")
     } else {
-        if (txEntry.Item.type.S === "add description") {
-            return addDescriptionRouter(number, request, txEntry.Item.scratch.M)
-        } else if (txEntry.Item.type.S === "add item") {
-            return addItemRouter(number, request, txEntry.Item.scratch.M)
+        if (result.Item.type.S === "add description") {
+            return addDescriptionRouter(number, request, result.Item.scratch.M)
+        } else if (result.Item.type.S === "add item") {
+            return addItemRouter(number, request, result.Item.scratch.M)
         } else {
             return deleteTransaction(number)
-                .then(() => { return "Current Request Type is Invalid. Deleting Transaction." })
+                .then(() => "Current Request Type is Invalid. Deleting Transaction.")
         }
     }
 }
