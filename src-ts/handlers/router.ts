@@ -29,7 +29,7 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 
     return getTransaction(responseDestination)
         .then((txEntry: GetItemOutput) => routeRequest(txEntry, responseDestination, request))
-        .catch(logDynamoDBError)
+        .catch(logError)
         .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
@@ -92,8 +92,9 @@ function sendMessage(response: string, originationNumber: string, destinationNum
     }).promise()
 }
 
-function logDynamoDBError(err: AWSError): string {
-    var errMsg: string = "Error Encountered with DynamoDB Client: " + JSON.stringify(err, null, 2)
+function logError(err: any): string {
+    console.log(err)
+    var errMsg: string = "Error Encountered: " + JSON.stringify(err, null, 2)
     console.error(errMsg)
     return errMsg
 }
