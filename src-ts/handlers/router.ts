@@ -35,6 +35,7 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 }
 
 function routeRequest(txItem: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
+    console.log("Got Here")
     if (txItem.Item) {
         console.log(txItem.Item)
         if (request === "cancel") {
