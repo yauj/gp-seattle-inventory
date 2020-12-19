@@ -47,3 +47,8 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - AmazonDynamoDBFullAccess
+        - "Version": "2012-10-17",
+          "Statement":
+              - "Effect": "Allow",
+                "Action": "mobiletargeting:SendMessages",
+                "Resource": !Sub "arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/0ca91d5a35c8404cbfc39fa4d2818092/*"
