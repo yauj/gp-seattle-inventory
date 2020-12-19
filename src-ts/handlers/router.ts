@@ -16,8 +16,6 @@ export const handler: SNSHandler = async (event: SNSEvent, context: Context) => 
     await Promise.all(event.Records.map(await processRecord))
 }
 
-// TODO: Fix stringPromise
-
 /**
  * Function to route requests
  */
@@ -27,6 +25,8 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 
     var responseOrigination = message.destinationNumber
     var responseDestination = message.originationNumber
+
+    console.log("Starting request from " + responseDestination)
 
     return getTransaction(responseDestination)
         .then((txItem: GetItemOutput) => routeRequest(txItem, responseDestination, request))
