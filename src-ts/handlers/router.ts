@@ -36,6 +36,7 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 
 function routeRequest(txItem: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
     if (txItem.Item) {
+        console.log(txItem.Item)
         if (request === "cancel") {
             return deleteTransaction(number)
                 .then(() => "Request Cancelled")
