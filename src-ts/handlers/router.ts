@@ -68,7 +68,6 @@ function routeRequest(txItem: GetItemOutput, number: string, request: string): s
  * tracked by the top level lambda method, to ensure that all callbacks have been called.
  */
 function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
-    console.log("Sending Message...")
     var params: Pinpoint.Types.SendMessagesRequest = {
         ApplicationId: PINPOINT_APP_ID,
         MessageRequest: {
@@ -91,6 +90,8 @@ function sendMessage(response: string, originationNumber: string, destinationNum
     return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
         if (err) {
             console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
+        } else {
+            console.log("Message sent to " + destinationNumber)
         }
     }).promise()
 }
