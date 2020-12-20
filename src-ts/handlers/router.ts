@@ -80,8 +80,7 @@ function sendMessage(response: string, originationNumber: string, destinationNum
                 SMSMessage: {
                     Body: response,
                     MessageType: 'PROMOTIONAL',
-                    OriginationNumber: originationNumber,
-                    SenderId: 'GP Seattle Inventory'
+                    OriginationNumber: originationNumber
                 }
             }
         }
@@ -92,6 +91,7 @@ function sendMessage(response: string, originationNumber: string, destinationNum
             console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
         } else {
             console.log("Message sent to " + destinationNumber)
+            console.log(response)
         }
     }).promise()
 }
