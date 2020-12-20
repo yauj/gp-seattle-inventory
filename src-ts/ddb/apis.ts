@@ -171,7 +171,7 @@ export function appendToScratchTransaction(
     val: any
 ): Promise<PromiseResult<DocumentClient.UpdateItemOutput, AWSError>> {
     var param: DocumentClient.UpdateItemInput = {
-        TableName: DESCRIPTION_TABLE,
+        TableName: TRANSACTIONS_TABLE,
         Key: {
             "number": number
         },
