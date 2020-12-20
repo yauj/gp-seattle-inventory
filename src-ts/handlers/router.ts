@@ -35,7 +35,6 @@ function processRecord(record: SNSEventRecord): Promise<any> {
 }
 
 function routeRequest(txItem: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
-    console.log("Got Here")
     if (txItem.Item) {
         console.log(txItem.Item)
         if (request === "cancel") {
@@ -69,6 +68,7 @@ function routeRequest(txItem: GetItemOutput, number: string, request: string): s
  * tracked by the top level lambda method, to ensure that all callbacks have been called.
  */
 function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
+    console.log("Sending Message...")
     var params: Pinpoint.Types.SendMessagesRequest = {
         ApplicationId: PINPOINT_APP_ID,
         MessageRequest: {
