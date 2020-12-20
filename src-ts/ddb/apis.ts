@@ -1,5 +1,5 @@
 import { AWSError } from "aws-sdk"
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { DocumentClient, AttributeMap } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request";
 
 const DESCRIPTION_TABLE = "gp-seattle-inventory-description"
@@ -11,6 +11,19 @@ const client: DocumentClient = new DocumentClient()
 /**
  * DESCRIPTION TABLE OPERATIONS
  */
+
+ /**
+ * @param name Name of item type. This needs to be unique.
+ * @param notes Other notes related to this item type.
+ * @param tags Tags to categorize item.
+ * @param items List of IDs of all items of this item type.
+ */
+ export interface Description {
+    name: string,
+    notes: string,
+    tags: string[],
+    items: string[]
+ }
 
 /**
  * Append to list in the description table
@@ -88,6 +101,21 @@ export function getDescription(
  */
 
 /**
+ * @param id Auto-generated ID of item. ID is a combination of 3 random words.
+ * @param name Name of the item.
+ * @param owner Name of the owner of the item or where the item is stored.
+ * @param notes Notes specific to this item.
+ * @param borrower Current borrower of item. Blank if available. Initialized as blank. 
+ */
+export interface Item {
+    id: string,
+    name: string,
+    owner: string,
+    notes: string,
+    borrower: string
+}
+
+/**
  * Adds item to item inventory table. 
  * 
  * @param id Auto-generated ID of item. ID is a combination of 3 random words.
@@ -118,6 +146,17 @@ export function createItem(
 /**
  * TRANSACTION TABLE OPERATIONS
  */
+
+ /**
+  * @param number Phone Number being used for response.
+  * @param type Type of transaction being performed
+  * @param scratch Scratch space used by transactions. Initialized as empty.
+  */
+export interface Transaction {
+    number: string,
+    type: string,
+    scratch: any
+}
 
  /**
  * Append to scratch space map

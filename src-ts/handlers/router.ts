@@ -1,10 +1,9 @@
 import { addDescriptionRouter } from "./add-description"
 import { addItemRouter } from "./add-item";
-import { deleteTransaction, getTransaction } from "../ddb/apis"
-import { SNSEvent, SNSEventRecord, SNSHandler, Context } from "aws-lambda"
+import { deleteTransaction, getTransaction, Transaction } from "../ddb/apis"
+import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda"
 import { AWSError, Pinpoint } from "aws-sdk"
-import { GetItemOutput } from "aws-sdk/clients/dynamodb"
-import { PromiseResult } from "aws-sdk/lib/request";
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 const PINPOINT_APP_ID: string = "0ca91d5a35c8404cbfc39fa4d2818092"
 const pinpoint: Pinpoint = new Pinpoint()
@@ -12,7 +11,7 @@ const pinpoint: Pinpoint = new Pinpoint()
 /**
  * Main entry handler, which splits up the records to be handled separately.
  */
-export const handler: SNSHandler = async (event: SNSEvent, context: Context) => {
+export const handler: SNSHandler = async (event: SNSEvent) => {
     await Promise.all(event.Records.map(await processRecord))
 }
 
@@ -29,28 +28,28 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     console.log("Starting request from " + responseDestination)
 
     return getTransaction(responseDestination)
-        .then((txItem: GetItemOutput) => routeRequest(txItem, responseDestination, request))
+        .then((data: DocumentClient.GetItemOutput) => routeRequest(data, responseDestination, request))
         .catch(logError)
         .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
-function routeRequest(txItem: GetItemOutput, number: string, request: string): string | PromiseLike<string> {
-    if (txItem.Item) {
-        console.log(txItem.Item)
-        if (request === "cancel") {
+function routeRequest(data: DocumentClient.GetItemOutput, number: string, request: string): string | PromiseLike<string> {
+    if (data.Item) {
+        var txItem: Transaction = data.Item as Transaction
+        if (request === "reset") {
             return deleteTransaction(number)
-                .then(() => "Request Cancelled")
-        } else if (txItem.Item.type.S === "add description") {
-            return addDescriptionRouter(number, request, txItem.Item.scratch.M)
-        } else if (txItem.Item.type.S === "add item") {
-            return addItemRouter(number, request, txItem.Item.scratch.M)
+                .then(() => "Request Reset")
+        } else if (txItem.type === "add description") {
+            return addDescriptionRouter(number, request, txItem.scratch)
+        } else if (txItem.type === "add item") {
+            return addItemRouter(number, request, txItem.scratch)
         } else {
             return deleteTransaction(number)
                 .then(() => "Current Request Type is Invalid. Deleting Transaction.")
         }
     } else {
-        if (request.toLowerCase() === "cancel") {
-            return "No Request To Cancel"
+        if (request.toLowerCase() === "reset") {
+            return "No Request To Reset"
         } else if (request.toLowerCase() === "add description") {
             return addDescriptionRouter(number, request)
         } else if (request.toLowerCase() === "add item") {

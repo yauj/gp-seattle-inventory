@@ -1,7 +1,6 @@
 import { createDescription, appendToScratchTransaction, createTransaction, deleteTransaction } from "../ddb/apis";
-import { MapAttributeValue } from "aws-sdk/clients/dynamodb";
 
-export function addDescriptionRouter(number: string, request: string, scratch?: MapAttributeValue): Promise<string> {
+export function addDescriptionRouter(number: string, request: string, scratch?: ScratchInterface): Promise<string> {
     if (scratch === undefined) {
         return createTransaction(number, "add description")
             .then(() => "Name of item:")
@@ -10,10 +9,10 @@ export function addDescriptionRouter(number: string, request: string, scratch?: 
             .then(() => "Notes about this type of item:")
     } else if (scratch.notes === undefined) {
         return appendToScratchTransaction(number, "notes", request)
-            .then(() => "Corresponding Tags (separated by commas):")
+            .then(() => "Tags (separated by commas):")
     } else {
-        var name: string = scratch.name.S
-        var notes: string = scratch.notes.S
+        var name: string = scratch.name as string
+        var notes: string = scratch.notes as string
         var tags: string[] = request.split(",").map((str: string) => {
             return str.toLowerCase().trim()
         })
@@ -22,4 +21,15 @@ export function addDescriptionRouter(number: string, request: string, scratch?: 
             .then(() => deleteTransaction(number))
             .then(() => "Created Description for item.")
     }
+}
+
+/**
+ * @param name Name of Item
+ * @param notes Notes about this type of item
+ * @param tags Tags, to help when searching up the item
+ */
+interface ScratchInterface {
+    name?: string,
+    notes?: string,
+    tags?: string[]
 }

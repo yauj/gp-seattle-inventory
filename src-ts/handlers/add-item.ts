@@ -2,7 +2,7 @@ import {
     appendToListDescription, createDescription, getDescription, createItem,
     appendToScratchTransaction, createTransaction, deleteTransaction
 } from "../ddb/apis";
-import { DocumentClient, MapAttributeValue } from "aws-sdk/clients/dynamodb";
+import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 var randomWords = require("random-words")
 
@@ -10,19 +10,19 @@ var randomWords = require("random-words")
  * Adds item to item inventory table. Note that if there is no corresponding record in the
  * description table, then a blank description will be added to that table.
  */
-export function addItemRouter(number: string, request: string, scratch?: MapAttributeValue): Promise<string> {
+export function addItemRouter(number: string, request: string, scratch?: ScratchInterface): Promise<string> {
     if (scratch === undefined) {
         return createTransaction(number, "add item")
             .then(() => "Name of item:")
     } else if (scratch.name === undefined) {
         return appendToScratchTransaction(number, "name", request)
-            .then(() => "Owner of this item (or location it's normally stored):")
+            .then(() => "Owner of this item (or location where it's stored if church owned):")
     } else if (scratch.owner === undefined) {
         return appendToScratchTransaction(number, "owner", request)
             .then(() => "Notes about this specific item:")
     } else {
-        var name: string = scratch.name.S
-        var owner: string = scratch.owner.S
+        var name: string = scratch.name
+        var owner: string = scratch.owner
         var notes: string = request
 
         return execute(name, owner, notes)
@@ -45,4 +45,15 @@ function execute(name: string, owner: string, notes: string): Promise<any> {
                 return createDescription(name, undefined, undefined, [id])
             }
         })
+}
+
+/**
+ * @param name Name of Item
+ * @param notes Owner of this item (or location where it's stored if church owned)
+ * @param tags Notes about this specific item (In practice, never specified)
+ */
+interface ScratchInterface {
+    name?: string,
+    owner?: string,
+    notes?: string[]
 }
