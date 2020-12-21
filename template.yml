@@ -22,8 +22,9 @@ Globals:
     PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppId}-${AWS::Region}-PermissionsBoundary'
 
 Parameters:
-  AppId:
+  PinpointAppId:
     Type: String
+    Default: 0ca91d5a35c8404cbfc39fa4d2818092
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -39,6 +40,9 @@ Resources:
       Handler: ./src/handlers/router/sms.handler
       Runtime: nodejs10.x
       Description: Router to all SMS functions
+      Environment:
+        Variables:
+          PinpointAppId: !Ref PinpointAppId
       Events:
         SMS:
           Type: SNS
@@ -51,4 +55,6 @@ Resources:
           Statement:
               - Effect: Allow
                 Action: mobiletargeting:SendMessages
-                Resource: !Sub 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/0ca91d5a35c8404cbfc39fa4d2818092/*'
+                Resource: !Sub
+                  - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${AppId}/*'
+                  - AppId: !Ref PinpointAppId

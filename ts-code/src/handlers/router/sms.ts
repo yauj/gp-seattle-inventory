@@ -3,7 +3,6 @@ import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda";
 import { AWSError, Pinpoint } from "aws-sdk";
 import { DDBClient } from "../../injection/implementation";
 
-const PINPOINT_APP_ID: string = "0ca91d5a35c8404cbfc39fa4d2818092"
 const pinpoint: Pinpoint = new Pinpoint()
 
 /**
@@ -37,7 +36,7 @@ function processRecord(record: SNSEventRecord): Promise<any> {
  */
 function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
     var params: Pinpoint.Types.SendMessagesRequest = {
-        ApplicationId: PINPOINT_APP_ID,
+        ApplicationId: process.env.PinpointAppId,
         MessageRequest: {
             Addresses: {
                 [destinationNumber]: {
