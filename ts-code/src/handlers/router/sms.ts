@@ -1,7 +1,7 @@
 import { Router } from "./common";
 import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda";
 import { AWSError, Pinpoint } from "aws-sdk";
-import { DDBClient } from "../../injection/implementation";
+import { DDBClient } from "../../injection/impl";
 
 const pinpoint: Pinpoint = new Pinpoint()
 

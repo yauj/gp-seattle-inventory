@@ -3,7 +3,7 @@ import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
 
-const ITEMS_TABLE = "gp-seattle-inventory-items"
+export const ITEMS_TABLE: string = "gp-seattle-inventory-items"
 
 /**
  * @param id Auto-generated ID of item. ID is a combination of 3 random words.

@@ -3,7 +3,7 @@ import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
 
-const DESCRIPTION_TABLE = "gp-seattle-inventory-description"
+export const DESCRIPTION_TABLE: string = "gp-seattle-inventory-description"
 
 /**
  * @param name Name of item type. This needs to be unique.

@@ -3,7 +3,7 @@ import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
 
-const TRANSACTIONS_TABLE = "gp-seattle-inventory-transactions"
+export const TRANSACTIONS_TABLE: string = "gp-seattle-inventory-transactions"
 
 /**
  * @param number Phone Number being used for response.

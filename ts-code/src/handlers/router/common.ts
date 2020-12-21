@@ -23,7 +23,7 @@ export class Router {
      */
     public processRequest(request: string, number: string): Promise<string> {
         return this.transactionsDB.get(number)
-            .then((data: DocumentClient.GetItemOutput) => this.routeRequest(data, number, request))
+            .then((data: DocumentClient.GetItemOutput) => this.routeRequest(data, number, request.toLowerCase()))
             .catch(this.logError)
     }
 
