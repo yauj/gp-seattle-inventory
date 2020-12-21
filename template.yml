@@ -36,7 +36,7 @@ Resources:
     Properties:
       FunctionName: gp-seattle-inventory-router
       CodeUri: ./
-      Handler: ./src/handlers/router.handler
+      Handler: ./src/handlers/router/sms.handler
       Runtime: nodejs10.x
       Description: Router to all SMS functions
       Events:

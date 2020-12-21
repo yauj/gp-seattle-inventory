@@ -1,11 +1,16 @@
 {
     "compilerOptions": {
-      "module": "CommonJS",
       "target": "ES2018",
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "types": ["reflect-metadata"],
       "noImplicitAny": true,
       "preserveConstEnums": true,
       "sourceMap": true,
-      "outDir": "./src"
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "outDir": "./"
     },
-    "include": ["src-ts/**/*"]
+    "include": ["./ts-code/**/*"],
+    "exclude": []
 }
