@@ -1,14 +1,21 @@
 import { DescriptionDB } from "../ddb/description";
 import { ItemsDB } from "../ddb/items";
 import { TransactionsDB } from "../ddb/transactions";
+import { DBClient } from "../injection/interface";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 const randomWords = require("random-words")
 
 export class AddItem {
-    private readonly descriptionDB: DescriptionDB = new DescriptionDB()
-    private readonly itemsDB: ItemsDB = new ItemsDB()
-    private readonly transactionsDB: TransactionsDB = new TransactionsDB()
+    private readonly descriptionDB: DescriptionDB
+    private readonly itemsDB: ItemsDB
+    private readonly transactionsDB: TransactionsDB
+
+    public constructor(client: DBClient) {
+        this.descriptionDB = new DescriptionDB(client)
+        this.itemsDB = new ItemsDB(client)
+        this.transactionsDB = new TransactionsDB(client)
+    }
 
     /**
      * Adds item to item inventory table. Note that if there is no corresponding record in the

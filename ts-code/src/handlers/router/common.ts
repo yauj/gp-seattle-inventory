@@ -1,12 +1,19 @@
 import { AddDescription } from "../../api/add-description"
 import { AddItem } from "../../api/add-item"
 import { TransactionsDB, TransactionsTable } from "../../ddb/transactions"
+import { DBClient } from "../../injection/interface";
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 export class Router {
-    private readonly transactionsDB: TransactionsDB = new TransactionsDB()
-    private readonly addItem: AddItem = new AddItem()
-    private readonly addDescription: AddDescription = new AddDescription()
+    private readonly addItem: AddItem
+    private readonly addDescription: AddDescription
+    private readonly transactionsDB: TransactionsDB
+
+    public constructor(client: DBClient) {
+        this.addItem = new AddItem(client)
+        this.addDescription = new AddDescription(client)
+        this.transactionsDB = new TransactionsDB(client)
+    }
 
     /**
      * Process given request string.

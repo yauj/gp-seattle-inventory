@@ -1,8 +1,7 @@
-import { DBClient, TYPES } from "../injection/interface"
+import { DBClient } from "../injection/interface"
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
-import { inject } from "inversify"
 
 const ITEMS_TABLE = "gp-seattle-inventory-items"
 
@@ -22,7 +21,11 @@ export interface ItemsTable {
 }
 
 export class ItemsDB {
-    @inject(TYPES.DBClient) private readonly client: DBClient
+    private readonly client: DBClient
+
+    public constructor(client: DBClient) {
+        this.client = client
+    }
 
     /**
      * Adds item to item inventory table. 

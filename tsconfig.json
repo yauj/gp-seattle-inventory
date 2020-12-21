@@ -2,13 +2,9 @@
     "compilerOptions": {
       "target": "ES2018",
       "module": "CommonJS",
-      "moduleResolution": "node",
-      "types": ["reflect-metadata"],
       "noImplicitAny": true,
       "preserveConstEnums": true,
       "sourceMap": true,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
       "outDir": "./"
     },
     "include": ["./ts-code/**/*"],

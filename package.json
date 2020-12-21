@@ -5,9 +5,7 @@
     "private": true,
     "dependencies": {
         "aws-sdk": "^2.812.0",
-        "inversify": "^5.0.5",
-        "random-words": "^1.1.1",
-        "reflect-metadata": "^0.1.13"
+        "random-words": "^1.1.1"
     },
     "devDependencies": {
         "@types/aws-lambda": "8.10.3",

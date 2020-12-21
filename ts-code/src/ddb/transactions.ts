@@ -1,8 +1,7 @@
-import { DBClient, TYPES } from "../injection/interface"
+import { DBClient } from "../injection/interface"
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
-import { inject } from "inversify"
 
 const TRANSACTIONS_TABLE = "gp-seattle-inventory-transactions"
 
@@ -18,7 +17,11 @@ export interface TransactionsTable {
 }
 
 export class TransactionsDB {
-    @inject(TYPES.DBClient) private readonly client: DBClient
+    private readonly client: DBClient
+
+    public constructor(client: DBClient) {
+        this.client = client
+    }
 
     /**
      * Append to scratch space map

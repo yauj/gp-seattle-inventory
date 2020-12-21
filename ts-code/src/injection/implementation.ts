@@ -1,18 +1,14 @@
-import { DBClient, TYPES } from "./interface"
-import { AWSError } from "aws-sdk"
+import { DBClient } from "./interface"
+import { AWSError, DynamoDB } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
-import { Container, injectable } from "inversify";
 
-export function getContainer(): Container {
-    var container = new Container()
-    container.bind<DBClient>(TYPES.DBClient).to(DDBClient).inSingletonScope()
-    return container
-}
-
-@injectable()
 export class DDBClient implements DBClient {
-    private readonly docClient = new DocumentClient()
+    private readonly docClient: DocumentClient
+
+    public constructor(options?: DocumentClient.DocumentClientOptions & DynamoDB.Types.ClientConfiguration) {
+        this.docClient = new DocumentClient(options)
+    }
 
     public delete(params: DocumentClient.DeleteItemInput): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> {
         return this.docClient.delete(params).promise()
@@ -29,6 +25,4 @@ export class DDBClient implements DBClient {
     public update(params: DocumentClient.UpdateItemInput): Promise<PromiseResult<DocumentClient.UpdateItemOutput, AWSError>> {
         return this.docClient.update(params).promise()
     }
-
-    
 }

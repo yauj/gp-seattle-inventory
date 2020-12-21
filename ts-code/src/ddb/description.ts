@@ -1,8 +1,7 @@
-import { TYPES, DBClient } from "../injection/interface";
-import { AWSError } from "aws-sdk";
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
-import { PromiseResult } from "aws-sdk/lib/request";
-import { inject } from "inversify";
+import { DBClient } from "../injection/interface"
+import { AWSError } from "aws-sdk"
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { PromiseResult } from "aws-sdk/lib/request"
 
 const DESCRIPTION_TABLE = "gp-seattle-inventory-description"
 
@@ -20,7 +19,11 @@ export interface DescriptionTable {
  }
 
 export class DescriptionDB {
-    @inject(TYPES.DBClient) private readonly client: DBClient
+    private readonly client: DBClient
+
+    public constructor(client: DBClient) {
+        this.client = client
+    }
 
     /**
      * Append to list in the description table

@@ -2,10 +2,6 @@ import { AWSError } from "aws-sdk";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { PromiseResult } from "aws-sdk/lib/request";
 
-export const TYPES = {
-    DBClient: Symbol.for("DBClient")
-}
-
 /**
  * Database client following pattern of DynamoDB DocumentClient
  * 

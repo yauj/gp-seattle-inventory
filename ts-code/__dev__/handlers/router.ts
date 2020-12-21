@@ -1,15 +1,14 @@
+import "reflect-metadata";
 import { Router } from "../../src/handlers/router/common"
-import { getContainer } from "../../src/injection/default"
+import { DDBClient } from "../../src/injection/implementation"
 import AWS = require("aws-sdk")
 
 const number: string = "test-number"
 
 async function run() {
-    AWS.config.update({ region: "us-west-2" })
+    var router: Router = new Router(new DDBClient({ region: "us-west-2" }))
 
-    getContainer()
-
-    console.log(await new Router().processRequest(process.argv[2], number))
+    console.log(await router.processRequest(process.argv[2], number))
 }
 
 run()

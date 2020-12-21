@@ -1,9 +1,15 @@
 import { DescriptionDB } from "../ddb/description";
 import { TransactionsDB } from "../ddb/transactions";
+import { DBClient } from "../injection/interface";
 
 export class AddDescription {
-    private readonly descriptionDB: DescriptionDB = new DescriptionDB()
-    private readonly transactionsDB: TransactionsDB = new TransactionsDB()
+    private readonly descriptionDB: DescriptionDB
+    private readonly transactionsDB: TransactionsDB
+
+    public constructor(client: DBClient) {
+        this.descriptionDB = new DescriptionDB(client)
+        this.transactionsDB = new TransactionsDB(client)
+    }
 
     public router(number: string, request: string, scratch?: ScratchInterface): Promise<string> {
         if (scratch === undefined) {
