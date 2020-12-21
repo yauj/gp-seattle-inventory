@@ -56,5 +56,4 @@ Resources:
               - Effect: Allow
                 Action: mobiletargeting:SendMessages
                 Resource: !Sub
-                  - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${AppId}/*'
-                  - AppId: !Ref PinpointAppId
+                  - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*'
