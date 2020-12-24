@@ -1,6 +1,6 @@
-import { AWSError } from "aws-sdk";
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
-import { PromiseResult } from "aws-sdk/lib/request";
+import { AWSError } from "aws-sdk"
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { PromiseResult } from "aws-sdk/lib/request"
 
 /**
  * Database client following pattern of DynamoDB DocumentClient

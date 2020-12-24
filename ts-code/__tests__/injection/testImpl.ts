@@ -2,7 +2,12 @@ import { DBClient } from "../../src/injection/interface";
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
-import { MainSchema, SecondaryIndexSchema, SearchIndexSchema, TransactionsSchema, MAIN_TABLE, ITEMS_TABLE, TRANSACTIONS_TABLE, TAGS_TABLE } from "../../src/db/schemas";
+import { 
+    MAIN_TABLE, MainSchema,
+    ITEMS_TABLE, SecondaryIndexSchema,
+    TAGS_TABLE, SearchIndexSchema,
+    TRANSACTIONS_TABLE, TransactionsSchema
+} from "../../src/db/schemas"
 
 interface LocalDB {
     main: { [key: string]: MainSchema },

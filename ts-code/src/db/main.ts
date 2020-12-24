@@ -1,4 +1,4 @@
-import { MAIN_TABLE,  MainSchema } from "./schemas";
+import { MAIN_TABLE,  MainSchema } from "./schemas"
 import { DBClient } from "../injection/interface"
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"

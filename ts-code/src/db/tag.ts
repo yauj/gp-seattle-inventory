@@ -1,4 +1,4 @@
-import { MAIN_TABLE, SearchIndexSchema, TAGS_TABLE } from "./schemas";
+import { MAIN_TABLE, TAGS_TABLE, SearchIndexSchema } from "./schemas"
 import { DBClient } from "../injection/interface"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 

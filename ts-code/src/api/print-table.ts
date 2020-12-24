@@ -1,9 +1,6 @@
-import { MainDB } from "../db/main";
-import { ItemDB } from "../db/item";
 import { TransactionsDB } from "../db/transactions"
-import { MainSchema, MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE } from "../db/schemas";
+import { MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE } from "../db/schemas";
 import { DBClient } from "../injection/interface"
-import { TagDB } from "../db/tag";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 const randomWords = require("random-words")

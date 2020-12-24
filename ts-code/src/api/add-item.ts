@@ -1,9 +1,9 @@
-import { MainDB } from "../db/main";
-import { ItemDB } from "../db/item";
+import { MainDB } from "../db/main"
+import { ItemDB } from "../db/item"
 import { TransactionsDB } from "../db/transactions"
-import { MainSchema } from "../db/schemas";
+import { MainSchema } from "../db/schemas"
 import { DBClient } from "../injection/interface"
-import { TagDB } from "../db/tag";
+import { TagDB } from "../db/tag"
 
 const randomWords = require("random-words")
 

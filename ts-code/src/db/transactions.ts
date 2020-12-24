@@ -1,4 +1,4 @@
-import { TRANSACTIONS_TABLE } from "./schemas";
+import { TRANSACTIONS_TABLE } from "./schemas"
 import { DBClient } from "../injection/interface"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
