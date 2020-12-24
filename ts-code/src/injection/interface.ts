@@ -24,4 +24,8 @@ export interface DBClient {
      * Edits an existing item's attributes, or adds a new item to the table if it does not already exist by delegating to AWS.DynamoDB.updateItem().
      */
     update(params: DocumentClient.UpdateItemInput): Promise<PromiseResult<DocumentClient.UpdateItemOutput, AWSError>>;
+    /**
+     * Returns one or more items and item attributes by accessing every item in a table or a secondary index.
+     */
+    scan(params: DocumentClient.ScanInput): Promise<PromiseResult<DocumentClient.ScanOutput, AWSError>>;
 }

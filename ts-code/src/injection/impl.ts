@@ -25,4 +25,8 @@ export class DDBClient implements DBClient {
     public update(params: DocumentClient.UpdateItemInput): Promise<PromiseResult<DocumentClient.UpdateItemOutput, AWSError>> {
         return this.docClient.update(params).promise()
     }
+
+    public scan(params: DynamoDB.DocumentClient.ScanInput): Promise<PromiseResult<DynamoDB.DocumentClient.ScanOutput, AWSError>> {
+        return this.docClient.scan(params).promise()
+    }
 }
