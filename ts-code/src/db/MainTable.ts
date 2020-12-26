@@ -1,10 +1,10 @@
-import { MAIN_TABLE,  MainSchema } from "./schemas"
-import { DBClient } from "../injection/interface"
+import { MAIN_TABLE,  MainSchema } from "./Schemas"
+import { DBClient } from "../injection/DBClient"
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
 
-export class MainDB {
+export class MainTable {
     private readonly client: DBClient
 
     public constructor(client: DBClient) {
@@ -23,7 +23,6 @@ export class MainDB {
         var item: MainSchema = {
             name: name,
             notes: notes,
-            tags: [],
             items: {}
         }
         var params: DocumentClient.PutItemInput = {
@@ -31,6 +30,30 @@ export class MainDB {
             Item: item
         }
         return this.client.put(params)
+    }
+
+    /**
+     * Delete description
+     * 
+     * Checks that Tags and Items are empty.
+     */
+    public delete(
+        name: string
+    ): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> {
+        return this.get(name)
+            .then((entry: MainSchema) => {
+                if (Object.keys(entry.items).length === 0 && entry.tags === undefined) {
+                    var params: DocumentClient.DeleteItemInput = {
+                        TableName: MAIN_TABLE,
+                        Key: {
+                            name: name
+                        }
+                    }
+                    return this.client.delete(params)
+                } else {
+                    throw Error("Either items or tags aren't empty, so unable to delete '" + name + "'")
+                }
+            })
     }
 
     /**

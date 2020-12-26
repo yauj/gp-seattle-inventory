@@ -1,4 +1,4 @@
-import { DBClient } from "../../src/injection/interface";
+import { DBClient } from "../../src/injection/DBClient";
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
@@ -7,7 +7,7 @@ import {
     ITEMS_TABLE, SecondaryIndexSchema,
     TAGS_TABLE, SearchIndexSchema,
     TRANSACTIONS_TABLE, TransactionsSchema
-} from "../../src/db/schemas"
+} from "../../src/db/Schemas"
 
 interface LocalDB {
     main: { [key: string]: MainSchema },
@@ -32,6 +32,13 @@ export class LocalDBClient implements DBClient {
      */
     public toJSON(): string {
         return JSON.stringify(this.db)
+    }
+
+    public createSet(list: string[]): DocumentClient.StringSet {
+        return {
+            type: "String",
+            values: list
+        }
     }
 
     public delete(params: DocumentClient.DeleteItemInput): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> {
@@ -73,6 +80,7 @@ export class LocalDBClient implements DBClient {
     }
 
     public update(params: DocumentClient.UpdateItemInput): Promise<PromiseResult<DocumentClient.UpdateItemOutput, AWSError>> {
+        // TODO: Update list append updates, since using sets now.
         return this.newPromise(() => {
             if (params.UpdateExpression === "SET #key = list_append(#key, :val)") {
                 // TODO: Maybe a bug, where concatenation is not working
@@ -85,6 +93,14 @@ export class LocalDBClient implements DBClient {
                 const key: string = params.ExpressionAttributeNames["#key"]
                 const val: any = params.ExpressionAttributeValues[":val"]
                 this.getTable(params.TableName)[Object.values(params.Key)[0]][attr][key] = val
+            } else if (params.UpdateExpression === "REMOVE #attr.#key") {
+                const attr: string = params.ExpressionAttributeNames["#attr"]
+                const key: string = params.ExpressionAttributeNames["#key"]
+                delete this.getTable(params.TableName)[Object.values(params.Key)[0]][attr][key]
+            } else if (params.UpdateExpression === "REMOVE #key[:idx]") {
+                const key: string = params.ExpressionAttributeNames["#key"]
+                const idx: string = params.ExpressionAttributeValues[":idx"]
+                this.getTable(params.TableName)[Object.values(params.Key)[0]][key].splice(idx, 1)
             } else {
                 throw Error("Unsupported UpdateExpression: " + params.UpdateExpression)
             }

@@ -1,7 +1,7 @@
 import { Router } from "../src/handlers/router/common"
-import { DBClient } from "../src/injection/interface"
-import { DDBClient } from "../src/injection/impl"
-import { LocalDBClient } from "../__tests__/injection/testImpl"
+import { DBClient } from "../src/injection/DBClient"
+import { DDBClient } from "../src/injection/DDBClient"
+import { LocalDBClient } from "../__tests__/injection/LocalDBClient"
 import { userInfo } from "os"
 
 const prompt = require("prompt")
@@ -23,6 +23,7 @@ var router: Router
  */
 function run() {
     if (process.argv[2] === "remote") {
+        console.log("CONNECTING TO PRODUCTION DATABASE")
         client = new DDBClient({ region: "us-west-2" })
     } else {
         client = new LocalDBClient()

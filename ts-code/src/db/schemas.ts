@@ -1,3 +1,5 @@
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
+
 export const MAIN_TABLE: string = "gp-seattle-inventory-main"
 
 /**
@@ -10,7 +12,7 @@ export const MAIN_TABLE: string = "gp-seattle-inventory-main"
 export interface MainSchema {
     name: string,
     notes: string,
-    tags: string[],
+    tags?: DocumentClient.StringSet,
     items: { [id: string]: ItemSchema }
 }
 
@@ -34,7 +36,7 @@ export interface SecondaryIndexSchema {
 export const TAGS_TABLE: string = "gp-seattle-inventory-tags"
 export interface SearchIndexSchema {
     key: string,
-    val: string[]
+    val?: DocumentClient.StringSet
 }
 
 export const TRANSACTIONS_TABLE: string = "gp-seattle-inventory-transactions"

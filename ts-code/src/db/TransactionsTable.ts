@@ -1,8 +1,8 @@
-import { TRANSACTIONS_TABLE } from "./schemas"
-import { DBClient } from "../injection/interface"
+import { TRANSACTIONS_TABLE } from "./Schemas"
+import { DBClient } from "../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
-export class TransactionsDB {
+export class TransactionsTable {
     private readonly client: DBClient
 
     public constructor(client: DBClient) {

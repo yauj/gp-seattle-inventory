@@ -1,4 +1,4 @@
-import { DBClient } from "./interface"
+import { DBClient } from "./DBClient"
 import { AWSError, DynamoDB } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
@@ -8,6 +8,10 @@ export class DDBClient implements DBClient {
 
     public constructor(options?: DocumentClient.DocumentClientOptions & DynamoDB.Types.ClientConfiguration) {
         this.docClient = new DocumentClient(options)
+    }
+
+    public createSet(list: string[]): DocumentClient.StringSet {
+        return this.docClient.createSet(list) as DocumentClient.StringSet
     }
 
     public delete(params: DocumentClient.DeleteItemInput): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> {
