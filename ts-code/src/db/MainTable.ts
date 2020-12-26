@@ -96,7 +96,10 @@ export class MainTable {
                     throw Error(`Couldn't find item ${id} in the database.`)
                 }
             }).then((entry: MainSchema) => {
-                if (expectedValue !== undefined && entry.items[id][key] === expectedValue) {
+                if (expectedValue !== undefined && entry.items[id][key] !== expectedValue) {
+                    throw Error(`'${key}' is currently '${entry.items[id][key]}', `
+                        + `which isn't equal to the expected value of '${expectedValue}'.`)
+                } else {
                     var updateParams: DocumentClient.UpdateItemInput = {
                         TableName: MAIN_TABLE,
                         Key: {
@@ -113,9 +116,6 @@ export class MainTable {
                         }
                     }
                     return this.client.update(updateParams)
-                } else {
-                    throw Error(`'${key}' is currently '${entry.items[id][key]}', `
-                        + `which isn't equal to the expected value of '${expectedValue}'.`)
                 }
             })
     }

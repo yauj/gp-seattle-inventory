@@ -1,7 +1,7 @@
-import { Router } from "../src/handlers/router/common"
-import { DBClient } from "../src/injection/DBClient"
-import { DDBClient } from "../src/injection/DDBClient"
-import { LocalDBClient } from "../__tests__/injection/LocalDBClient"
+import { Router } from "../../../src/handlers/router/Router"
+import { DBClient } from "../../../src/injection/DBClient"
+import { DDBClient } from "../../../src/injection/DDBClient"
+import { LocalDBClient } from "../../../__tests__/injection/LocalDBClient"
 import { userInfo } from "os"
 
 const prompt = require("prompt")
@@ -15,11 +15,7 @@ var client: DBClient
 var router: Router
 
 /**
- * Dev script to test out router. Steps to run:
- * 
- * npm install
- * npm run build
- * node router.js
+ * Dev script to test out router.
  */
 function run() {
     if (process.argv[2] === "remote") {

@@ -1,4 +1,4 @@
-import { Router } from "./common"
+import { Router } from "./Router"
 import { DDBClient } from "../../injection/DDBClient"
 import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda"
 import { AWSError, Pinpoint } from "aws-sdk"

@@ -2,6 +2,8 @@ import { AddItem } from "../../api/AddItem"
 import { DeleteItem } from "../../api/DeleteItem"
 import { BorrowItem } from "../../api/BorrowItem"
 import { ReturnItem } from "../../api/ReturnItem"
+import { UpdateItemNotes } from "../../api/UpdateItemNotes"
+import { UpdateItemOwner } from "../../api/UpdateItemOwner"
 import { PrintTable } from "../../api/internal/PrintTable"
 import { TransactionsTable } from "../../db/TransactionsTable"
 import { TransactionsSchema } from "../../db/Schemas"
@@ -15,6 +17,8 @@ const HELP_MENU: string = "Note that all incoming strings are processed with the
     + "- 'add item': Add new item to the database.\n"
     + "- 'borrow item': Mark item as borrowed.\n"
     + "- 'return item': Mark borrowed item as returned.\n"
+    + "- 'update item notes': Update notes about the specific item.\n"
+    + "- 'update item owner': Update of a specific item.\n"
     + "- 'delete item': Delete item from database, by item id.\n"
     + "- 'abort': Reset ongoing transaction.\n"
     + "- 'help': Returns this help menu."
@@ -66,6 +70,10 @@ export class Router {
             return new BorrowItem(this.client).router(number, request, scratch)
         } else if (type === ReturnItem.NAME) {
             return new ReturnItem(this.client).router(number, request, scratch)
+        } else if (type === UpdateItemNotes.NAME) {
+            return new UpdateItemNotes(this.client).router(number, request, scratch)
+        } else if (type === UpdateItemOwner.NAME) {
+            return new UpdateItemOwner(this.client).router(number, request, scratch)
         } else if (type === DeleteItem.NAME) {
             return new DeleteItem(this.client).router(number, request, scratch)
         } else {
