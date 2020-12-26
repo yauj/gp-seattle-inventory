@@ -22,7 +22,7 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var responseOrigination = message.destinationNumber
     var responseDestination = message.originationNumber
 
-    console.log("Starting request from " + responseDestination)
+    console.log(`Starting request from ${responseDestination}`)
 
     var router: Router = new Router(new DDBClient())
 
@@ -55,10 +55,10 @@ function sendMessage(response: string, originationNumber: string, destinationNum
 
     return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
         if (err) {
-            console.error("Error encountered when attempting to send to " + destinationNumber + "\n" + err.message)
+            console.error(`Error encountered when attempting to send to ${destinationNumber}`)
+            console.error(err)
         } else {
-            console.log("Message sent to " + destinationNumber)
-            console.log(response)
+            console.log(`Message sent to ${destinationNumber}`)
         }
     }).promise()
 }

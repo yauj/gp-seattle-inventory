@@ -1,30 +1,30 @@
 import { AddItem } from "../../api/AddItem"
+import { DeleteItem } from "../../api/DeleteItem"
+import { BorrowItem } from "../../api/BorrowItem"
+import { ReturnItem } from "../../api/ReturnItem"
 import { PrintTable } from "../../api/internal/PrintTable"
 import { TransactionsTable } from "../../db/TransactionsTable"
 import { TransactionsSchema } from "../../db/Schemas"
 import { DBClient } from "../../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
-import { DeleteItem } from "../../api/DeleteItem"
 
 const HELP_MENU: string = "Note that all incoming strings are processed with the following assumptions:\n"
     + "- All incoming strings are made into lowercase.\n"
     + "- The keyword 'none' is replaced with a empty string.\n"
     + "Supported Operations:\n"
     + "- 'add item': Add new item to the database.\n"
+    + "- 'borrow item': Mark item as borrowed.\n"
+    + "- 'return item': Mark borrowed item as returned.\n"
     + "- 'delete item': Delete item from database, by item id.\n"
     + "- 'abort': Reset ongoing transaction.\n"
     + "- 'help': Returns this help menu."
 
 export class Router {
-    private readonly printTable: PrintTable
-    private readonly addItem: AddItem
-    private readonly deleteItem: DeleteItem
+    private readonly client: DBClient
     private readonly transactionsTable: TransactionsTable
 
     public constructor(client: DBClient) {
-        this.printTable = new PrintTable(client)
-        this.addItem = new AddItem(client)
-        this.deleteItem = new DeleteItem(client)
+        this.client = client
         this.transactionsTable = new TransactionsTable(client)
     }
 
@@ -36,15 +36,15 @@ export class Router {
      */
     public processRequest(request: string, number: string): Promise<string> {
         var processedRequest: string = request.toLowerCase()
-        processedRequest = processedRequest === "none" ? "" : processedRequest
+        processedRequest = (processedRequest === "none") ? "" : processedRequest
 
         return this.transactionsTable.get(number)
             .then((data: DocumentClient.GetItemOutput) => {
                 if (data.Item) {
                     var entry: TransactionsSchema = data.Item as TransactionsSchema
-                    return this.routeRequest(number, request, entry.type, entry.scratch)
+                    return this.routeRequest(number, processedRequest, entry.type, entry.scratch)
                 } else {
-                    return this.routeRequest(number, request, request)
+                    return this.routeRequest(number, processedRequest, processedRequest)
                 }
             })
             .catch(this.logError)
@@ -59,11 +59,15 @@ export class Router {
         if (request === "abort") {
             return this.abort(number, scratch)
         } else if (type === PrintTable.NAME) {
-            return this.printTable.router(number, request, scratch)
+            return new PrintTable(this.client).router(number, request, scratch)
         } else if (type === AddItem.NAME) {
-            return this.addItem.router(number, request, scratch)
+            return new AddItem(this.client).router(number, request, scratch)
+        } else if (type === BorrowItem.NAME) {
+            return new BorrowItem(this.client).router(number, request, scratch)
+        } else if (type === ReturnItem.NAME) {
+            return new ReturnItem(this.client).router(number, request, scratch)
         } else if (type === DeleteItem.NAME) {
-            return this.deleteItem.router(number, request, scratch)
+            return new DeleteItem(this.client).router(number, request, scratch)
         } else {
             return this.footer(number, request, scratch)
         }

@@ -21,7 +21,7 @@ export class PrintTable {
         this.transactionsTable = new TransactionsTable(client)
     }
 
-    public router(number: string, request: string, scratch?: ScratchInterface): Promise<string> {
+    public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
         if (scratch === undefined) {
             return this.transactionsTable.create(number, PrintTable.NAME)
                 .then(() => "Name of table: (Options: main, items, tags, transactions)")

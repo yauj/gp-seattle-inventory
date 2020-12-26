@@ -29,29 +29,30 @@ export class DeleteItem {
                 .then(() => "ID of item:")
         } else if (scratch.id === undefined) {
             return this.transactionsTable.appendToScratch(number, "id", request)
-                .then(() => "Type 'y' to confirm that you want to delete item: '" + request + "'")
+                .then(() => `Type 'y' to confirm that you want to delete item: '${request}'`)
         } else {
             if (request === "y") {
                 return this.transactionsTable.delete(number)
-                    .then(() => this.execute(scratch.id))
+                    .then(() => this.execute(scratch))
             } else {
                 return "ERROR: Didn't receive 'y'. Please reply again with a 'y' to proceed with deleting the object, or 'abort' to abort the transaction."
             }
         }
     }
 
-    private execute(id: string): Promise<string> {
-        return this.itemTable.delete(id)
+    private execute(scratch: ScratchInterface): Promise<string> {
+        return this.itemTable.delete(scratch.id)
                 .then((name: string) => this.mainTable.get(name))
                 .then((entry: MainSchema) => {
                     if (Object.keys(entry.items).length === 0) {
                         return this.tagTable.delete(entry.name, entry.tags.values)
                             .then(() => this.mainTable.delete(entry.name))
+                            .then(() => entry.name)
                     } else {
-                        return
+                        return entry.name
                     }
                 })
-                .then(() => "Item Deleted.")
+                .then((name: string) => `Deleted a '${name}' from the inventory.`)
     }
 }
 

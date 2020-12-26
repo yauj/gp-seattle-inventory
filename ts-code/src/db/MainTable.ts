@@ -1,7 +1,7 @@
-import { MAIN_TABLE,  MainSchema } from "./Schemas"
+import { MAIN_TABLE,  MainSchema, SecondaryIndexSchema, ITEMS_TABLE } from "./Schemas"
 import { DBClient } from "../injection/DBClient"
 import { AWSError } from "aws-sdk"
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { DocumentClient, GetItemOutput } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
 
 export class MainTable {
@@ -35,7 +35,7 @@ export class MainTable {
     /**
      * Delete description
      * 
-     * Checks that Tags and Items are empty.
+     * Checks that Tags and Items are empty before proceeding.
      */
     public delete(
         name: string
@@ -51,15 +51,13 @@ export class MainTable {
                     }
                     return this.client.delete(params)
                 } else {
-                    throw Error("Either items or tags aren't empty, so unable to delete '" + name + "'")
+                    throw Error(`Either items or tags aren't empty, so unable to delete '${name}'`)
                 }
             })
     }
 
     /**
      * Get description of given item type, by name.
-     * 
-     * @param name Name of item type.
      */
     public get(
         name: string
@@ -72,5 +70,53 @@ export class MainTable {
         }
         return this.client.get(params)
             .then((output: DocumentClient.GetItemOutput) => output.Item as MainSchema)
+    }
+
+    /**
+     * Update item attribute
+     */
+    public updateItem(
+        id: string,
+        key: "borrower" | "owner" | "notes",
+        val: string,
+        expectedValue?: string
+    ): Promise<GetItemOutput> {
+        var itemSearchParams: DocumentClient.GetItemInput = {
+            TableName: ITEMS_TABLE,
+            Key: {
+                "key": id
+            }
+        }
+        return this.client.get(itemSearchParams)
+            .then((data: DocumentClient.GetItemOutput) => {
+                if (data.Item) {
+                    var entry: SecondaryIndexSchema = data.Item as SecondaryIndexSchema
+                    return this.get(entry.val)
+                } else {
+                    throw Error(`Couldn't find item ${id} in the database.`)
+                }
+            }).then((entry: MainSchema) => {
+                if (expectedValue !== undefined && entry.items[id][key] === expectedValue) {
+                    var updateParams: DocumentClient.UpdateItemInput = {
+                        TableName: MAIN_TABLE,
+                        Key: {
+                            "name": entry.name
+                        },
+                        UpdateExpression: "SET #attr1.#attr2.#key = :val",
+                        ExpressionAttributeNames: {
+                            "#attr1": "items",
+                            "#attr2": id,
+                            "#key": key
+                        },
+                        ExpressionAttributeValues: {
+                            ":val": val
+                        }
+                    }
+                    return this.client.update(updateParams)
+                } else {
+                    throw Error(`'${key}' is currently '${entry.items[id][key]}', `
+                        + `which isn't equal to the expected value of '${expectedValue}'.`)
+                }
+            })
     }
 }

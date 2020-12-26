@@ -25,7 +25,7 @@ export class AddItem {
         this.transactionsTable = new TransactionsTable(client)
     }
 
-    public router(number: string, request: string, scratch?: ScratchInterface): Promise<string> {
+    public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
         if (scratch === undefined) {
             return this.transactionsTable.create(number, AddItem.NAME)
                 .then(() => "Name of item:")
@@ -63,7 +63,7 @@ export class AddItem {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<any> {
+    private execute(scratch: ScratchInterface): Promise<string> {
         return this.mainTable.get(scratch.name)
             .then((entry: MainSchema) => {
                 if (entry) {
