@@ -1,4 +1,4 @@
-import { MAIN_TABLE, TAGS_TABLE, SearchIndexSchema } from "./Schemas"
+import { MAIN_TABLE, MainSchema, TAGS_TABLE, SearchIndexSchema } from "./Schemas"
 import { DBClient } from "../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
@@ -139,6 +139,30 @@ export class TagTable {
                 } else {
                     // Doesn't contain tag, so do nothing.
                     return
+                }
+            })
+    }
+
+    public update(
+        name: string,
+        tags: string[]
+    ): Promise<any> {
+        var mainParam: DocumentClient.GetItemInput = {
+            TableName: MAIN_TABLE,
+            Key: {
+                "name": name
+            }
+        }
+        return this.client.get(mainParam)
+            .then((data: DocumentClient.GetItemOutput) => {
+                if (data.Item) {
+                    var entry: MainSchema = data.Item as MainSchema
+                    var curTags = entry.tags ? entry.tags.values : []
+                    var createTags = tags.filter((newTag: string) => !curTags.includes(newTag))
+                    var deleteTags = curTags.filter((curTag: string) => !tags.includes(curTag))
+                    return Promise.all([this.create(name, createTags), this.delete(name, deleteTags)])
+                } else {
+                    throw Error(`Could not find '${name}' in the database.`)
                 }
             })
     }

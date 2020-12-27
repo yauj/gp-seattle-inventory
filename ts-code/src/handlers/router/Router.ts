@@ -1,6 +1,7 @@
-import { AddItem } from "../../api/AddItem"
 import { BorrowItem } from "../../api/BorrowItem"
 import { ReturnItem } from "../../api/ReturnItem"
+import { AddItem } from "../../api/AddItem"
+import { UpdateTags } from "../../api/UpdateTags"
 import { UpdateDescription } from "../../api/UpdateDescription"
 import { UpdateItemNotes } from "../../api/UpdateItemNotes"
 import { UpdateItemOwner } from "../../api/UpdateItemOwner"
@@ -15,10 +16,11 @@ const HELP_MENU: string = "Note that all incoming strings are processed with the
     + "- All incoming strings are made into lowercase.\n"
     + "- The keyword 'none' is replaced with a empty string.\n"
     + "Supported Operations:\n"
-    + "- 'add item': Add new item to the database.\n"
     + "- 'borrow item': Mark item as borrowed.\n"
     + "- 'return item': Mark borrowed item as returned.\n"
+    + "- 'add item': Add new item to the database.\n"
     + "- 'update description':  Update description of a certain item family.\n"
+    + "- 'update tags':  Update search tags for a certain item family.\n"
     + "- 'update item notes': Update notes about the specific item.\n"
     + "- 'update item owner': Update of a specific item.\n"
     + "- 'delete item': Delete item from database, by item id.\n"
@@ -66,14 +68,16 @@ export class Router {
             return this.abort(number, scratch)
         } else if (type === PrintTable.NAME) {
             return new PrintTable(this.client).router(number, request, scratch)
-        } else if (type === AddItem.NAME) {
-            return new AddItem(this.client).router(number, request, scratch)
         } else if (type === BorrowItem.NAME) {
             return new BorrowItem(this.client).router(number, request, scratch)
         } else if (type === ReturnItem.NAME) {
             return new ReturnItem(this.client).router(number, request, scratch)
+        } else if (type === AddItem.NAME) {
+            return new AddItem(this.client).router(number, request, scratch)
         } else if (type === UpdateDescription.NAME) {
             return new UpdateDescription(this.client).router(number, request, scratch)
+        } else if (type === UpdateTags.NAME) {
+            return new UpdateTags(this.client).router(number, request, scratch)
         } else if (type === UpdateItemNotes.NAME) {
             return new UpdateItemNotes(this.client).router(number, request, scratch)
         } else if (type === UpdateItemOwner.NAME) {
