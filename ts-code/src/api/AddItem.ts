@@ -40,23 +40,23 @@ export class AddItem {
                     } else {
                         // Item doesn't exist, so need to create new item.
                         return this.transactionsTable.appendToScratch(number, "createItem", true)
-                            .then(() => "Related Category Tags (separated by commas):")
+                            .then(() => "Related Category Tags (separated by spaces):")
                     }
                 })
         } else if (scratch.createItem && scratch.tags == undefined) {
-            var tags: string[] = request.split(",").map((str: string) => {
-                return str.toLowerCase().trim()
-            })
+            var tags: string[] = request.split(/(\s+)/)
+                .filter((str: string) => str.trim().length > 0)
+                .map((str: string) => str.toLowerCase().trim())
             return this.transactionsTable.appendToScratch(number, "tags", tags)
-                .then(() => "Notes about this type of item:")
-        } else if (scratch.createItem && scratch.categoryNotes == undefined) {
-            return this.transactionsTable.appendToScratch(number, "categoryNotes", request)
+                .then(() => "Optional description of this item:")
+        } else if (scratch.createItem && scratch.description == undefined) {
+            return this.transactionsTable.appendToScratch(number, "description", request)
             .then(() => "Owner of this item (or location where it's stored if church owned):")
         } else if (scratch.owner === undefined) {
             return this.transactionsTable.appendToScratch(number, "owner", request)
-                .then(() => "Notes about this specific item:")
+                .then(() => "Optional notes about this specific item:")
         } else {
-            scratch.itemNotes = request
+            scratch.notes = request
 
             return this.transactionsTable.delete(number)
                 .then(() => this.execute(scratch))
@@ -71,26 +71,29 @@ export class AddItem {
                     return
                 } else {
                     // Add new Object
-                    return this.mainTable.create(scratch.name, scratch.categoryNotes)
+                    return this.mainTable.create(scratch.name, scratch.description)
                         .then(() => this.tagTable.create(scratch.name, scratch.tags))
                 }
             }).then(() => {
                 var id: string = randomWords({ exactly: 3, join: "-" })
-                return this.itemTable.create(id, scratch.name, scratch.owner, scratch.itemNotes)
+                return this.itemTable.create(id, scratch.name, scratch.owner, scratch.notes)
             }).then(() => "Created Description for item.")
     }
 }
 
 /**
  * @param name Name of Item
- * @param notes Owner of this item (or location where it's stored if church owned)
- * @param tags Notes about this specific item (In practice, never specified)
+ * @param createItem Flag to indicate item needs to be created (used by the router function)
+ * @param description Optional description about the item
+ * @param tags Tags to query the item with
+ * @param owner Owner of this item (or location where it's stored if church owned)
+ * @param tags Notes about this specific item.
  */
 interface ScratchInterface {
     name?: string,
     createItem?: boolean,
-    categoryNotes?: string,
+    description?: string,
     tags?: string[], 
     owner?: string,
-    itemNotes?: string
+    notes?: string
 }

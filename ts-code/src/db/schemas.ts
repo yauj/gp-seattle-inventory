@@ -4,14 +4,14 @@ export const MAIN_TABLE: string = "gp-seattle-inventory-main"
 
 /**
  * @param name Name of item type. This needs to be unique.
- * @param notes Other notes related to this item type.
+ * @param description Optional description of item.
  * @param tags Tags to categorize item.
  * @param items List of IDs of all items of this item type.
  * @param id Auto-generated ID of item. ID is a combination of 3 random words.
  */
 export interface MainSchema {
     name: string,
-    notes: string,
+    description: string,
     tags?: DocumentClient.StringSet,
     items: { [id: string]: ItemSchema }
 }

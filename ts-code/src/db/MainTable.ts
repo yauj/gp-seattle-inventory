@@ -18,11 +18,11 @@ export class MainTable {
      */
     public create(
         name: string,
-        notes: string
+        description: string
     ): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> {
         var item: MainSchema = {
             name: name,
-            notes: notes,
+            description: description,
             items: {}
         }
         var params: DocumentClient.PutItemInput = {
