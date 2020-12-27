@@ -1,8 +1,6 @@
 import { MAIN_TABLE,  MainSchema, SecondaryIndexSchema, ITEMS_TABLE } from "./Schemas"
 import { DBClient } from "../injection/DBClient"
-import { AWSError } from "aws-sdk"
 import { DocumentClient, GetItemOutput } from "aws-sdk/clients/dynamodb"
-import { PromiseResult } from "aws-sdk/lib/request"
 
 export class MainTable {
     private readonly client: DBClient
@@ -19,7 +17,7 @@ export class MainTable {
     public create(
         name: string,
         description: string
-    ): Promise<PromiseResult<DocumentClient.PutItemOutput, AWSError>> {
+    ): Promise<DocumentClient.PutItemOutput> {
         var item: MainSchema = {
             name: name,
             description: description,
@@ -39,7 +37,7 @@ export class MainTable {
      */
     public delete(
         name: string
-    ): Promise<PromiseResult<DocumentClient.DeleteItemOutput, AWSError>> {
+    ): Promise<DocumentClient.DeleteItemOutput> {
         return this.get(name)
             .then((entry: MainSchema) => {
                 if (Object.keys(entry.items).length === 0 && entry.tags === undefined) {
@@ -70,6 +68,31 @@ export class MainTable {
         }
         return this.client.get(params)
             .then((output: DocumentClient.GetItemOutput) => output.Item as MainSchema)
+    }
+
+    /**
+     * Update name level attribute
+     */
+    public update(
+        name: string,
+        key: string,
+        val: string
+    ): Promise<DocumentClient.UpdateItemOutput> {
+        var params: DocumentClient.UpdateItemInput = {
+            TableName: MAIN_TABLE,
+            Key: {
+                "name": name
+            },
+            UpdateExpression: "SET #key = :val",
+            ConditionExpression: 'attribute_exists(#key)',
+            ExpressionAttributeNames: {
+                "#key": key
+            },
+            ExpressionAttributeValues: {
+                ":val": val
+            }
+        }
+        return this.client.update(params)
     }
 
     /**
