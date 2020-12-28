@@ -1,3 +1,5 @@
+import { GetItem } from "../../api/GetItem"
+import { SearchItem } from "../../api/SearchItem"
 import { BorrowItem } from "../../api/BorrowItem"
 import { ReturnItem } from "../../api/ReturnItem"
 import { AddItem } from "../../api/AddItem"
@@ -11,13 +13,13 @@ import { TransactionsTable } from "../../db/TransactionsTable"
 import { TransactionsSchema } from "../../db/Schemas"
 import { DBClient } from "../../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
-import { GetItem } from "../../api/GetItem"
 
 const HELP_MENU: string = "Note that all incoming strings are processed with the following assumptions:\n"
     + "- All incoming strings are made into lowercase.\n"
     + "- The keyword 'none' is replaced with a empty string.\n"
     + "Supported Operations:\n"
     + "- 'get item': Get details of item by item name or by item id. \n"
+    + "- 'search item': Search for items by tags\n"
     + "- 'borrow item': Mark item as borrowed.\n"
     + "- 'return item': Mark borrowed item as returned.\n"
     + "- 'add item': Add new item to the database.\n"
@@ -72,6 +74,8 @@ export class Router {
             return new PrintTable(this.client).router(number, request, scratch)
         } else if (type === GetItem.NAME) {
             return new GetItem(this.client).router(number, request, scratch)
+        } else if (type === SearchItem.NAME) {
+            return new SearchItem(this.client).router(number, request, scratch)
         } else if (type === BorrowItem.NAME) {
             return new BorrowItem(this.client).router(number, request, scratch)
         } else if (type === ReturnItem.NAME) {

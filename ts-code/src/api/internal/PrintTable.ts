@@ -34,7 +34,7 @@ export class PrintTable {
 
     private execute(scratch: ScratchInterface): Promise<string> {
         var params: DocumentClient.ScanInput = {
-            TableName: this.getTableName(scratch.tableName),
+            TableName: this.getTableName(scratch.tableName)
         }
         return this.client.scan(params)
             .then((output: DocumentClient.ScanOutput) => JSON.stringify(output.Items))

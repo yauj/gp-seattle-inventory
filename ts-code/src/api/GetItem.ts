@@ -1,6 +1,5 @@
 import { MainTable } from "../db/MainTable"
 import { ItemTable } from "../db/ItemTable"
-import { TagTable } from "../db/TagTable"
 import { TransactionsTable } from "../db/TransactionsTable"
 import { MainSchema, SecondaryIndexSchema } from "../db/Schemas"
 import { DBClient } from "../injection/DBClient"
@@ -13,13 +12,11 @@ export class GetItem {
 
     private readonly mainTable: MainTable
     private readonly itemTable: ItemTable
-    private readonly tagTable: TagTable
     private readonly transactionsTable: TransactionsTable
 
     public constructor(client: DBClient) {
         this.mainTable = new MainTable(client)
         this.itemTable = new ItemTable(client)
-        this.tagTable = new TagTable(client)
         this.transactionsTable = new TransactionsTable(client)
     }
 
@@ -48,7 +45,7 @@ export class GetItem {
                         .then((entry: MainSchema) => {
                             if (entry) {
                                 var returnString = this.header(entry)
-                                Object.keys(entry.items).forEach((id: string) => returnString = returnString + this.item(entry, id))
+                                Object.keys(entry.items).forEach((id: string) => returnString += this.item(entry, id))
                                 return returnString
                             } else {
                                 throw Error(`Couldn't find item '${scratch.key}'`)
