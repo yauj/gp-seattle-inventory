@@ -19,6 +19,12 @@ import { DeleteBatch } from "../../api/DeleteBatch"
 import { BorrowBatch } from "../../api/BorrowBatch"
 import { ReturnBatch } from "../../api/ReturnBatch"
 
+const HELP_MENU: string = "Main Operations:\n"
+    + "- 'abort': Reset ongoing request\n"
+    + "- 'help': Returns this help menu\n"
+    + "- 'help basic': Returns information about basic operations\n"
+    + "- 'help advanced': Returns information about advanced operations\n"
+
 const BASIC_HELP_MENU: string = "Basic Operations:\n"
     + "- 'get item': Get details of item by item name or by item id. \n"
     + "- 'search item': Search for items by tags\n"
@@ -130,7 +136,7 @@ export class Router {
         } else {
             if (request === "help") {
                 // Handled by Pinpoint Keywords
-                return ""
+                return HELP_MENU
             } else if (request === "help basic") {
                 return BASIC_HELP_MENU
             } else if (request === "help advanced") {
