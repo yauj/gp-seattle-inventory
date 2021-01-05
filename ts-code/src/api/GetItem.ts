@@ -64,9 +64,11 @@ export class GetItem {
     }
 
     private item(entry: MainSchema, id: string) {
+        var batch: string[] = entry.items[id].batch ? entry.items[id].batch.values : []
         return `\n  id: ${id}`
             + `\n    owner: ${entry.items[id].owner}`
             + `\n    borrower: ${entry.items[id].borrower}`
+            + `\n    batch: ${batch}`
             + `\n    notes: ${entry.items[id].notes}`
     }
 }

@@ -22,7 +22,7 @@ export class UpdateTags {
                 .then(() => "Name of item:")
         } else if (scratch.name === undefined) {
             return this.transactionsTable.appendToScratch(number, "name", request)
-                .then(() => "New Tags:")
+                .then(() => "New Tags (separated by spaces):")
         } else {
             scratch.tags = request.split(/(\s+)/)
                 .filter((str: string) => str.trim().length > 0)

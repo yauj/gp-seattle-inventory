@@ -40,7 +40,11 @@ export class MainTable {
     ): Promise<DocumentClient.DeleteItemOutput> {
         return this.get(name)
             .then((entry: MainSchema) => {
-                if (Object.keys(entry.items).length === 0 && entry.tags === undefined) {
+                if (Object.keys(entry.items).length !== 0) {
+                    throw Error(`Entry '${name}' still contains items.`)
+                } else if (entry.tags !== undefined) {
+                    throw Error(`Entry '${name}' still contains IDs.`)
+                } else {
                     var params: DocumentClient.DeleteItemInput = {
                         TableName: MAIN_TABLE,
                         Key: {
@@ -48,8 +52,6 @@ export class MainTable {
                         }
                     }
                     return this.client.delete(params)
-                } else {
-                    throw Error(`Either items or tags aren't empty, so unable to delete '${name}'`)
                 }
             })
     }

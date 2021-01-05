@@ -35,6 +35,7 @@ export interface SecondaryIndexSchema {
     val: string
 }
 
+export const BATCH_TABLE: string = "gp-seattle-inventory-batch"
 export const TAGS_TABLE: string = "gp-seattle-inventory-tags"
 export interface SearchIndexSchema {
     key: string,

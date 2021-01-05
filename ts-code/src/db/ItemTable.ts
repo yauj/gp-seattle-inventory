@@ -73,10 +73,12 @@ export class ItemTable {
                         Key: {
                             "name": entry.val
                         },
-                        UpdateExpression: "REMOVE #attr.#key",
+                        UpdateExpression: "REMOVE #attr.#id",
+                        ConditionExpression: "attribute_not_exists(#attr.#id.#key)",
                         ExpressionAttributeNames: {
                             "#attr": "items",
-                            "#key": id
+                            "#id": id,
+                            "#key": "batch"
                         }
                     }
 
@@ -88,6 +90,13 @@ export class ItemTable {
                     }
 
                     return this.client.update(mainParams)
+                        .catch((reason: AWSError) => {
+                            if (reason.code ===  "ConditionalCheckFailedException") {
+                                throw Error(`Item ${id} still belongs to batches. Need to remove item from batch before proceeding with removal.`)
+                            } else {
+                                throw reason
+                            }
+                        })
                         .then(() => this.client.delete(itemsParams))
                         .then(() => entry.val)
                 } else {

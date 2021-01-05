@@ -13,6 +13,11 @@ import { TransactionsTable } from "../../db/TransactionsTable"
 import { TransactionsSchema } from "../../db/Schemas"
 import { DBClient } from "../../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { CreateBatch } from "../../api/CreateBatch"
+import { GetBatch } from "../../api/GetBatch"
+import { DeleteBatch } from "../../api/DeleteBatch"
+import { BorrowBatch } from "../../api/BorrowBatch"
+import { ReturnBatch } from "../../api/ReturnBatch"
 
 const HELP_MENU: string = "Note that all incoming strings are processed with the following assumptions:\n"
     + "- All incoming strings are made into lowercase.\n"
@@ -22,6 +27,9 @@ const HELP_MENU: string = "Note that all incoming strings are processed with the
     + "- 'search item': Search for items by tags\n"
     + "- 'borrow item': Mark item as borrowed.\n"
     + "- 'return item': Mark borrowed item as returned.\n"
+    + "- 'get batch': get info about a batch\n"
+    + "- 'borrow batch': Borrow all items in a batch.\n"
+    + "- 'return batch': Return all items in a batch.\n"
     + "Mutating Operations:\n"
     + "- 'add item': Add new item to the database.\n"
     + "- 'delete item': Delete item from database, by item id.\n"
@@ -29,6 +37,8 @@ const HELP_MENU: string = "Note that all incoming strings are processed with the
     + "- 'update tags':  Update search tags for a certain item family.\n"
     + "- 'update item notes': Update notes about the specific item.\n"
     + "- 'update item owner': Update of a specific item.\n"
+    + "- 'create batch': Create new batch, override existing batch if exists.\n"
+    + "- 'delete batch': Delete batch.\n"
     + "Other Operations:\n"
     + "- 'abort': Reset ongoing request.\n"
     + "- 'help': Returns this help menu."
@@ -94,6 +104,16 @@ export class Router {
             return new UpdateItemOwner(this.client).router(number, request, scratch)
         } else if (type === DeleteItem.NAME) {
             return new DeleteItem(this.client).router(number, request, scratch)
+        } else if (type === GetBatch.NAME) {
+            return new GetBatch(this.client).router(number, request, scratch)
+        } else if (type === BorrowBatch.NAME) {
+            return new BorrowBatch(this.client).router(number, request, scratch)
+        } else if (type === ReturnBatch.NAME) {
+            return new ReturnBatch(this.client).router(number, request, scratch)
+        } else if (type === CreateBatch.NAME) {
+            return new CreateBatch(this.client).router(number, request, scratch)
+        } else if (type === DeleteBatch.NAME) {
+            return new DeleteBatch(this.client).router(number, request, scratch)
         } else {
             return this.footer(number, request, scratch)
         }
