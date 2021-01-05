@@ -42,9 +42,6 @@ Resources:
       Handler: ./src/handlers/router/SMSRouter.handler
       Runtime: nodejs10.x
       Description: Router for all SMS functions
-      Environment:
-        Variables:
-          PinpointAppId: !Ref PinpointAppId
       Events:
         SMS:
           Type: SNS
