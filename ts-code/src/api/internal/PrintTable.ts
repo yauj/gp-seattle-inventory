@@ -3,8 +3,6 @@ import { MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE } from "../../d
 import { DBClient } from "../../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
-const randomWords = require("random-words")
-
 /**
  * Scan entire table, returning as a string
  * 

@@ -7,7 +7,7 @@ export const MAIN_TABLE: string = "gp-seattle-inventory-main"
  * @param description Optional description of item.
  * @param tags Tags to categorize item.
  * @param items List of IDs of all items of this item type.
- * @param id Auto-generated ID of item. ID is a combination of 3 random words.
+ * @param id ID of item. User specified.
  */
 export interface MainSchema {
     name: string,
