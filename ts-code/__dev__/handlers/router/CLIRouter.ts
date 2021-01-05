@@ -8,8 +8,8 @@ const prompt = require("prompt")
 const number: string = `${userInfo().username}-test-number`
 
 /**
- * Local: new LocalDBClient()
- * Remote: new DDBClient({ region: "us-west-2" })
+ * Local: node CLIRouter.js
+ * Remote: node CLIRouter.js remote
  */
 var client: DBClient
 var router: Router

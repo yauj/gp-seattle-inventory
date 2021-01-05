@@ -1,6 +1,7 @@
 import { MAIN_TABLE, ItemSchema, ITEMS_TABLE, SecondaryIndexSchema } from "./Schemas";
 import { DBClient } from "../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import { AWSError } from "aws-sdk";
 
 export class ItemTable {
     private readonly client: DBClient
@@ -18,36 +19,44 @@ export class ItemTable {
         owner: string,
         notes: string
     ): Promise<DocumentClient.PutItemOutput> {
-        var item: ItemSchema = {
-            owner: owner,
-            notes: notes,
-            borrower: ""
-        }
-        var mainParams: DocumentClient.UpdateItemInput = {
-            TableName: MAIN_TABLE,
-            Key: {
-                "name": name
-            },
-            UpdateExpression: "SET #attr.#key = :val",
-            ExpressionAttributeNames: {
-                "#attr": "items",
-                "#key": id
-            },
-            ExpressionAttributeValues: {
-                ":val": item
-            }
-        }
+        return this.get(id)
+            .then((entry: SecondaryIndexSchema) => {
+                if (entry) {
+                    throw Error(`RMS ID ${id} is not unique.`)
+                } else {
+                    var item: ItemSchema = {
+                        owner: owner,
+                        notes: notes,
+                        borrower: ""
+                    }
+                    var mainParams: DocumentClient.UpdateItemInput = {
+                        TableName: MAIN_TABLE,
+                        Key: {
+                            "name": name
+                        },
+                        UpdateExpression: "SET #attr.#key = :val",
+                        ExpressionAttributeNames: {
+                            "#attr": "items",
+                            "#key": id
+                        },
+                        ExpressionAttributeValues: {
+                            ":val": item
+                        }
+                    }
+            
+                    var indexItem: SecondaryIndexSchema = {
+                        key: id,
+                        val: name
+                    }
+                    var indexParams: DocumentClient.PutItemInput = {
+                        TableName: ITEMS_TABLE,
+                        Item: indexItem
+                    }
 
-        var indexItem: SecondaryIndexSchema = {
-            key: id,
-            val: name
-        }
-        var indexParams: DocumentClient.PutItemInput = {
-            TableName: ITEMS_TABLE,
-            Item: indexItem
-        }
-        return this.client.update(mainParams)
-            .then(() => this.client.put(indexParams))
+                    return this.client.update(mainParams)
+                        .then(() => this.client.put(indexParams))        
+                }
+            })
     }
 
     /**

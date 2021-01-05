@@ -20,10 +20,12 @@ export interface MainSchema {
  * @param owner Name of the owner of the item or where the item is stored.
  * @param notes Notes specific to this item.
  * @param borrower Current borrower of item. Blank if available. Initialized as blank. 
+ * @param batch List of batches this item is part of.
  */
 export interface ItemSchema {
     owner: string,
     borrower: string,
+    batch?: DocumentClient.StringSet,
     notes: string
 }
 

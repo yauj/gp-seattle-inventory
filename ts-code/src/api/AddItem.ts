@@ -5,8 +5,6 @@ import { TransactionsTable } from "../db/TransactionsTable"
 import { MainSchema } from "../db/Schemas"
 import { DBClient } from "../injection/DBClient"
 
-const randomWords = require("random-words")
-
 /**
  * Adds item to item inventory table.
  */
@@ -36,7 +34,7 @@ export class AddItem {
                     if (item) {
                         // Item already exists. Just append new item.
                         return this.transactionsTable.appendToScratch(number, "createItem", false)
-                            .then(() => "Owner of this item (or location where it's stored if church owned):")
+                            .then(() => "Intended Unique RMS ID number:")
                     } else {
                         // Item doesn't exist, so need to create new item.
                         return this.transactionsTable.appendToScratch(number, "createItem", true)
@@ -51,7 +49,10 @@ export class AddItem {
                 .then(() => "Optional description of this item:")
         } else if (scratch.createItem && scratch.description == undefined) {
             return this.transactionsTable.appendToScratch(number, "description", request)
-            .then(() => "Owner of this item (or location where it's stored if church owned):")
+            .then(() => "Intended Unique RMS ID number:")
+        } else if (scratch.id === undefined) {
+            return this.transactionsTable.appendToScratch(number, "id", request)
+                .then(() => "Owner of this item (or location where it's stored if church owned):")
         } else if (scratch.owner === undefined) {
             return this.transactionsTable.appendToScratch(number, "owner", request)
                 .then(() => "Optional notes about this specific item:")
@@ -75,13 +76,14 @@ export class AddItem {
                         .then(() => this.tagTable.create(scratch.name, scratch.tags))
                 }
             }).then(() => {
-                var id: string = randomWords({ exactly: 3, join: "-" })
-                return this.itemTable.create(id, scratch.name, scratch.owner, scratch.notes)
-            }).then(() => "Created Description for item.")
+                return this.itemTable.create(scratch.id, scratch.name, scratch.owner, scratch.notes)
+                    .then(() => `Created Item with RMS ID: ${scratch.id}`)       
+            })
     }
 }
 
 /**
+ * @param id Intended ID of item
  * @param name Name of Item
  * @param createItem Flag to indicate item needs to be created (used by the router function)
  * @param description Optional description about the item
@@ -90,6 +92,7 @@ export class AddItem {
  * @param tags Notes about this specific item.
  */
 interface ScratchInterface {
+    id?: string,
     name?: string,
     createItem?: boolean,
     description?: string,
