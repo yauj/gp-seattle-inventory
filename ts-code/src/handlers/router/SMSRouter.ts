@@ -34,6 +34,10 @@ function processRecord(record: SNSEventRecord): Promise<any> {
  * Function to send Pinpoint SMS response.
  */
 function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
+    if (response === "") {
+        return
+    }
+
     var params: Pinpoint.Types.SendMessagesRequest = {
         ApplicationId: process.env.PinpointAppId,
         MessageRequest: {

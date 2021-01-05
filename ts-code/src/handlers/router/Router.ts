@@ -19,29 +19,24 @@ import { DeleteBatch } from "../../api/DeleteBatch"
 import { BorrowBatch } from "../../api/BorrowBatch"
 import { ReturnBatch } from "../../api/ReturnBatch"
 
-const HELP_MENU: string = "Note that all incoming strings are processed with the following assumptions:\n"
-    + "- All incoming strings are made into lowercase.\n"
-    + "- The keyword 'none' is replaced with a empty string.\n"
-    + "Basic Operations:\n"
+const BASIC_HELP_MENU: string = "Basic Operations:\n"
     + "- 'get item': Get details of item by item name or by item id. \n"
     + "- 'search item': Search for items by tags\n"
     + "- 'borrow item': Mark item as borrowed.\n"
     + "- 'return item': Mark borrowed item as returned.\n"
-    + "- 'get batch': get info about a batch\n"
+    + "- 'get batch': Get info about a batch\n"
     + "- 'borrow batch': Borrow all items in a batch.\n"
-    + "- 'return batch': Return all items in a batch.\n"
-    + "Mutating Operations:\n"
-    + "- 'add item': Add new item to the database.\n"
-    + "- 'delete item': Delete item from database, by item id.\n"
-    + "- 'update description': Update description of a certain item family.\n"
-    + "- 'update tags':  Update search tags for a certain item family.\n"
-    + "- 'update item notes': Update notes about the specific item.\n"
-    + "- 'update item owner': Update of a specific item.\n"
-    + "- 'create batch': Create new batch, override existing batch if exists.\n"
-    + "- 'delete batch': Delete batch.\n"
-    + "Other Operations:\n"
-    + "- 'abort': Reset ongoing request.\n"
-    + "- 'help': Returns this help menu."
+    + "- 'return batch': Return all items in a batch."
+
+const ADVANCED_HELP_MENU: string = "Mutating Operations:\n"
++ "- 'add item': Add new item to the database.\n"
++ "- 'delete item': Delete item from database, by item id.\n"
++ "- 'update description': Update description of a certain item family.\n"
++ "- 'update tags':  Update search tags for a certain item family.\n"
++ "- 'update item notes': Update notes about the specific item.\n"
++ "- 'update item owner': Update of a specific item.\n"
++ "- 'create batch': Create new batch, override existing batch if exists.\n"
++ "- 'delete batch': Delete batch."
 
 export class Router {
     private readonly client: DBClient
@@ -134,9 +129,14 @@ export class Router {
                 .then(() => "Request type is invalid. Transaction data is corrupt. Deleting transaction.")
         } else {
             if (request === "help") {
-                return HELP_MENU
+                // Handled by Pinpoint Keywords
+                return ""
+            } else if (request === "help basic") {
+                return BASIC_HELP_MENU
+            } else if (request === "help advanced") {
+                return ADVANCED_HELP_MENU
             } else {
-                return "Invalid Request. Please reply with HELP to get valid operations."
+                return "Invalid Request. Please reply with 'help' to get valid operations."
             }
         }
     }
