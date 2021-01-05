@@ -24,9 +24,6 @@ Globals:
 Parameters:
   AppId:
     Type: String
-  PinpointAppId:
-    Type: String
-    Default: 0ca91d5a35c8404cbfc39fa4d2818092
 
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
@@ -34,31 +31,6 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
   
-  sms:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: gp-seattle-inventory-sms
-      CodeUri: ./
-      Handler: ./src/handlers/router/SMSRouter.handler
-      Runtime: nodejs10.x
-      Description: Router for all SMS functions
-      Environment:
-        Variables:
-          PinpointAppId: !Ref PinpointAppId
-      Events:
-        SMS:
-          Type: SNS
-          Properties:
-            Topic: !Sub arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:GPSeattleInventoryTopic
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - AmazonDynamoDBFullAccess
-        - Version: '2012-10-17'
-          Statement:
-              - Effect: Allow
-                Action: mobiletargeting:SendMessages
-                Resource: !Sub
-                  - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*'
   email:
     Type: AWS::Serverless::Function
     Properties:
