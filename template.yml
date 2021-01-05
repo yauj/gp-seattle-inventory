@@ -42,6 +42,9 @@ Resources:
       Handler: ./src/handlers/router/SMSRouter.handler
       Runtime: nodejs10.x
       Description: Router for all SMS functions
+      Environment:
+        Variables:
+          PinpointAppId: !Ref PinpointAppId
       Events:
         SMS:
           Type: SNS
@@ -54,5 +57,4 @@ Resources:
           Statement:
               - Effect: Allow
                 Action: mobiletargeting:SendMessages
-                Resource: !Sub
-                  - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*'
+                Resource: !Sub 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*'
