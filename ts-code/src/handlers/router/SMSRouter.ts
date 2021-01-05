@@ -27,12 +27,11 @@ function processRecord(record: SNSEventRecord): Promise<any> {
     var router: Router = new Router(new DDBClient())
 
     return router.processRequest(request, responseDestination)
-        .then((response: string) => this.sendMessage(response, responseOrigination, responseDestination))
+        .then((response: string) => sendMessage(response, responseOrigination, responseDestination))
 }
 
 /**
- * Function to send Pinpoint response. This is passed down to callbacks, and is the future that is
- * tracked by the top level lambda method, to ensure that all callbacks have been called.
+ * Function to send Pinpoint SMS response.
  */
 function sendMessage(response: string, originationNumber: string, destinationNumber: string): Promise<any> {
     var params: Pinpoint.Types.SendMessagesRequest = {
@@ -53,7 +52,7 @@ function sendMessage(response: string, originationNumber: string, destinationNum
         }
     }
 
-    return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
+    return pinpoint.sendMessages(params, (err: AWSError) => {
         if (err) {
             console.error(`Error encountered when attempting to send to ${destinationNumber}`)
             console.error(err)

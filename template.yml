@@ -32,14 +32,14 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
   
-  router:
+  sms:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: gp-seattle-inventory-router
+      FunctionName: gp-seattle-inventory-sms
       CodeUri: ./
       Handler: ./src/handlers/router/SMSRouter.handler
       Runtime: nodejs10.x
-      Description: Router to all SMS functions
+      Description: Router for all SMS functions
       Environment:
         Variables:
           PinpointAppId: !Ref PinpointAppId
@@ -57,3 +57,20 @@ Resources:
                 Action: mobiletargeting:SendMessages
                 Resource: !Sub
                   - 'arn:${AWS::Partition}:mobiletargeting:${AWS::Region}:${AWS::AccountId}:apps/${PinpointAppId}/*'
+  email:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: gp-seattle-inventory-email
+      CodeUri: ./
+      Handler: ./src/handlers/router/EmailRouter.handler
+      Runtime: nodejs10.x
+      Description: Router for all Email functions
+      Events:
+        SMS:
+          Type: SNS
+          Properties:
+            Topic: !Sub arn:${AWS::Partition}:sns:${AWS::Region}:${AWS::AccountId}:GPSeattleInventoryEmail
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
+        - AmazonSESFullAccess
