@@ -19,9 +19,12 @@ export class ReturnItem {
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
         if (scratch === undefined) {
             return this.transactionsTable.create(number, ReturnItem.NAME)
-                .then(() => "ID of item:")
-        } else if (scratch.id === undefined) {
-            return this.transactionsTable.appendToScratch(number, "id", request)
+                .then(() => "IDs of Items (separated by spaces):")
+        } else if (scratch.ids === undefined) {
+            var ids: string[] = request.split(/(\s+)/)
+                .filter((str: string) => str.trim().length > 0)
+                .map((str: string) => str.toLowerCase().trim())
+            return this.transactionsTable.appendToScratch(number, "ids", ids)
                 .then(() => "Name of current borrower:")
         } else {
             scratch.borrower = request
@@ -31,16 +34,16 @@ export class ReturnItem {
     }
 
     private execute(scratch: ScratchInterface): Promise<string> {
-        return this.mainTable.updateItem(scratch.id, "borrower", "", scratch.borrower)
-            .then(() => `Successfully returned item '${scratch.id}'.`)
+        return Promise.all(scratch.ids.map((id: string) => this.mainTable.updateItem(id, "borrower", "", scratch.borrower)))
+            .then(() => `Successfully returned items '${scratch.ids.toString()}'.`)
     }
 }
 
 /**
- * @param id ID of Item
+ * @param ids IDs of Items
  * @param borrower Name of borrower
  */
 interface ScratchInterface {
-    id?: string
+    ids?: string[]
     borrower?: string
 }
