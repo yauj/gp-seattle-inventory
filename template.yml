@@ -22,6 +22,8 @@ Globals:
     PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppId}-${AWS::Region}-PermissionsBoundary'
 
 Parameters:
+  AppId:
+    Type: String
   PinpointAppId:
     Type: String
     Default: 0ca91d5a35c8404cbfc39fa4d2818092
