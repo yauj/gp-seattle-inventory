@@ -1,7 +1,7 @@
 import { Router } from "./Router"
 import { DDBClient } from "../../injection/DDBClient"
 import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda"
-import { AWSError, Pinpoint, SES } from "aws-sdk"
+import { AWSError, SES } from "aws-sdk"
 
 const SOURCE_EMAIL: string = "gp.seattle.inventory@gmail.com"
 
@@ -52,7 +52,7 @@ function sendMessage(response: string, destinationEmail: string): Promise<any> {
         Source: SOURCE_EMAIL
     }
 
-    return ses.sendEmail(params, (err: AWSError) => {
+    return ses.sendEmail(params, (err: AWSError, _: SES.Types.SendEmailResponse) => {
         if (err) {
             console.error(`Error encountered when attempting to send to ${destinationEmail}`)
             console.error(err)

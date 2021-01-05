@@ -52,7 +52,7 @@ function sendMessage(response: string, originationNumber: string, destinationNum
         }
     }
 
-    return pinpoint.sendMessages(params, (err: AWSError) => {
+    return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
         if (err) {
             console.error(`Error encountered when attempting to send to ${destinationNumber}`)
             console.error(err)
