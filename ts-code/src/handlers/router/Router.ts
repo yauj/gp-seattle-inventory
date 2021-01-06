@@ -35,14 +35,14 @@ const BASIC_HELP_MENU: string = "Basic Operations:\n"
     + "- 'return batch': Return all items in a batch."
 
 const ADVANCED_HELP_MENU: string = "Mutating Operations:\n"
-+ "- 'add item': Add new item to the database.\n"
-+ "- 'delete item': Delete item from database, by item id.\n"
-+ "- 'update description': Update description of a certain item family.\n"
-+ "- 'update tags':  Update search tags for a certain item family.\n"
-+ "- 'update item notes': Update notes about the specific item.\n"
-+ "- 'update item owner': Update of a specific item.\n"
-+ "- 'create batch': Create new batch, override existing batch if exists.\n"
-+ "- 'delete batch': Delete batch."
+    + "- 'add item': Add new item to the database.\n"
+    + "- 'delete item': Delete item from database, by item id.\n"
+    + "- 'update description': Update description of a certain item family.\n"
+    + "- 'update tags':  Update search tags for a certain item family.\n"
+    + "- 'update item notes': Update notes about the specific item.\n"
+    + "- 'update item owner': Update of a specific item.\n"
+    + "- 'create batch': Create new batch, override existing batch if exists.\n"
+    + "- 'delete batch': Delete batch."
 
 export class Router {
     private readonly client: DBClient

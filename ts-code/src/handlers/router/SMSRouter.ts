@@ -9,6 +9,7 @@ const pinpoint: Pinpoint = new Pinpoint()
  * Main entry handler, which splits up the records to be handled separately.
  */
 export const handler: SNSHandler = async (event: SNSEvent) => {
+    console.log(`${event.Records.length} sns records`)
     await Promise.all(event.Records.map(await processRecord))
 }
 
