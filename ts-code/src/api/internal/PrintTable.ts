@@ -9,7 +9,7 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb"
  * WARNING: THIS IS A EXPENSIVE OPERATION
  */
 export class PrintTable {
-    public static NAME: string = "print table"
+    public static NAME: string = "internal print table"
 
     private readonly client: DBClient
     private readonly transactionsTable: TransactionsTable

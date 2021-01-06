@@ -27,8 +27,11 @@ export class BorrowBatch {
         } else if (scratch.name === undefined) {
             return this.transactionsTable.appendToScratch(number, "name", request)
                 .then(() => "Name of intended borrower:")
+        } else if (scratch.borrower === undefined) {
+            return this.transactionsTable.appendToScratch(number, "borrower", request)
+                .then(() => "Optional notes to leave about this action:")
         } else {
-            scratch.borrower = request
+            scratch.notes = request
             return this.transactionsTable.delete(number)
                 .then(() => this.execute(scratch))
         }
@@ -39,7 +42,7 @@ export class BorrowBatch {
             .then((entry: SearchIndexSchema) => {
                 if (entry) {
                     return Promise.all(entry.val.values.map((id: string) =>
-                        this.mainTable.updateItem(id, "borrower", scratch.borrower, "")
+                        this.mainTable.changeBorrower(id, scratch.borrower, "borrow", scratch.notes)
                     ))
                 } else {
                     throw Error(`Could not find batch '${scratch.name}'`)
@@ -51,8 +54,11 @@ export class BorrowBatch {
 
 /**
  * @param name Name of batch
+ * @param borrower Name of borrower
+ * @param notes Notes about this action
  */
 interface ScratchInterface {
-    name?: string
-    borrower?: string
+    name?: string,
+    borrower?: string,
+    notes?: string
 }

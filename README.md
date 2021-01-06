@@ -7,3 +7,9 @@ relevant DynamoDB tables.
 
 The main way to access these functions right now is through the router, which routes commands to
 underlying operations. Use the "help" interface to get the valid operations.
+
+## Improvements
+
+- Make public node project, to allow others to perform db operations
+- TTL for History
+- Scheduling

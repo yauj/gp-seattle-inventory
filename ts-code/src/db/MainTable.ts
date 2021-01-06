@@ -1,6 +1,6 @@
-import { MAIN_TABLE,  MainSchema, SecondaryIndexSchema, ITEMS_TABLE } from "./Schemas"
+import { MAIN_TABLE,  MainSchema, ITEMS_TABLE, SecondaryIndexSchema, HISTORY_TABLE, HistorySchema } from "./Schemas"
 import { DBClient } from "../injection/DBClient"
-import { DocumentClient, GetItemOutput } from "aws-sdk/clients/dynamodb"
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 export class MainTable {
     private readonly client: DBClient
@@ -102,10 +102,10 @@ export class MainTable {
      */
     public updateItem(
         id: string,
-        key: "borrower" | "owner" | "notes",
+        key: "owner" | "notes",
         val: string,
         expectedValue?: string
-    ): Promise<GetItemOutput> {
+    ): Promise<DocumentClient.GetItemOutput> {
         var itemSearchParams: DocumentClient.GetItemInput = {
             TableName: ITEMS_TABLE,
             Key: {
@@ -143,5 +143,117 @@ export class MainTable {
                     return this.client.update(updateParams)
                 }
             })
+    }
+
+    /**
+     * Special update function, specific for changing the borrower of a item.
+     */
+    public changeBorrower(
+        id: string,
+        borrower: string,
+        action: "borrow" | "return",
+        notes: string
+    ) {
+        return this.updateBorrowStatus(id, borrower, action)
+            .then((name: string) => this.createHistoryEntry(name, id, borrower, action, notes))
+    }
+
+    private updateBorrowStatus(
+        id: string,
+        borrower: string,
+        action: "borrow" | "return"
+    ): Promise<string> {
+        var expectedBorrower: string = (action === "borrow") ? "" : borrower
+        var nextBorrower: string = (action === "borrow") ? borrower : ""
+
+        var itemSearchParams: DocumentClient.GetItemInput = {
+            TableName: ITEMS_TABLE,
+            Key: {
+                "key": id
+            }
+        }
+        return this.client.get(itemSearchParams)
+            .then((data: DocumentClient.GetItemOutput) => {
+                if (data.Item) {
+                    var entry: SecondaryIndexSchema = data.Item as SecondaryIndexSchema
+                    return this.get(entry.val)
+                } else {
+                    throw Error(`Couldn't find item ${id} in the database.`)
+                }
+            }).then((entry: MainSchema) => {
+                if (entry.items[id].borrower !== expectedBorrower) {
+                    if (action === "borrow") {
+                        throw Error("Unable to borrow item: "
+                            + `Item is currently being borrowed by '${entry.items[id].borrower}'.`)
+                    } else {
+                        throw Error("Unable to return item: "
+                            + `Borrower in database is '${entry.items[id].borrower}', `
+                            + `which isn't equal to the specified borrower of '${expectedBorrower}'.`)
+                    }
+                } else {
+                    var updateParams: DocumentClient.UpdateItemInput = {
+                        TableName: MAIN_TABLE,
+                        Key: {
+                            "name": entry.name
+                        },
+                        UpdateExpression: "SET #attr1.#attr2.#key = :val",
+                        ExpressionAttributeNames: {
+                            "#attr1": "items",
+                            "#attr2": id,
+                            "#key": "borrower"
+                        },
+                        ExpressionAttributeValues: {
+                            ":val": nextBorrower
+                        }
+                    }
+                    return this.client.update(updateParams)
+                        .then(() => entry.name)
+                }
+            })
+    }
+
+    /**
+     * Create new entry in borrow history table
+     */
+    private createHistoryEntry(
+        name: string,
+        id: string,
+        borrower: string,
+        action: "borrow" | "return",
+        notes: string
+    ): Promise<DocumentClient.PutItemOutput> {
+        var curEpochMs: number = Date.now()
+        var key: string = `${curEpochMs}-${id}`
+        var item: HistorySchema = {
+            key: key,
+            id: id,
+            borrower: borrower,
+            action: action,
+            notes: notes,
+            timestamp: curEpochMs
+        }
+        var addHistoryParams: DocumentClient.PutItemInput = {
+            TableName: HISTORY_TABLE,
+            Item: item
+        }
+
+        var updateMainParams: DocumentClient.UpdateItemInput = {
+            TableName: MAIN_TABLE,
+            Key: {
+                "name": name
+            },
+            UpdateExpression: "ADD #attr1.#attr2.#key :val",
+            ExpressionAttributeNames: {
+                "#attr1": "items",
+                "#attr2": id,
+                "#key": "history"
+            },
+            ExpressionAttributeValues: {
+                ":val": this.client.createSet([key])
+            }
+        }
+
+        return this.client.put(addHistoryParams)
+            .then(() => this.client.update(updateMainParams))
     }
 }

@@ -19,13 +19,17 @@ export interface MainSchema {
 /**
  * @param owner Name of the owner of the item or where the item is stored.
  * @param notes Notes specific to this item.
- * @param borrower Current borrower of item. Blank if available. Initialized as blank. 
+ * @param borrower Current borrower of item. Blank if available. Initialized as blank.
+ * @param history List of entries in the history table
+ * @param schedule List of entries in the schedule table [TODO: Implement Schedule]
  * @param batch List of batches this item is part of.
  */
 export interface ItemSchema {
     owner: string,
     borrower: string,
     batch?: DocumentClient.StringSet,
+    history?: DocumentClient.StringSet,
+    schedule?: DocumentClient.StringSet,
     notes: string
 }
 
@@ -40,6 +44,24 @@ export const TAGS_TABLE: string = "gp-seattle-inventory-tags"
 export interface SearchIndexSchema {
     key: string,
     val?: DocumentClient.StringSet
+}
+
+export const HISTORY_TABLE: string = "gp-seattle-inventory-history"
+/**
+ * @param key Random Time Related Unique Key, where the first part of the key is the creation time.
+ * @param id ID of Item
+ * @param borrower Name of Borrower
+ * @param action Either borrow or return the specified.
+ * @param notes Optional notes about this action.
+ * @param timestamp Time when item was created (in epoch milliseconds)
+ */
+export interface HistorySchema {
+    key: string,
+    id: string,
+    borrower: string,
+    action: "borrow" | "return",
+    notes: string,
+    timestamp: number
 }
 
 export const TRANSACTIONS_TABLE: string = "gp-seattle-inventory-transactions"

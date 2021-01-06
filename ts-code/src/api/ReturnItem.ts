@@ -26,24 +26,30 @@ export class ReturnItem {
                 .map((str: string) => str.toLowerCase().trim())
             return this.transactionsTable.appendToScratch(number, "ids", ids)
                 .then(() => "Name of current borrower:")
+        } else if (scratch.borrower === undefined) {
+            return this.transactionsTable.appendToScratch(number, "borrower", request)
+                .then(() => "Optional notes to leave about this action:")
         } else {
-            scratch.borrower = request
+            scratch.notes = request
             return this.transactionsTable.delete(number)
                 .then(() => this.execute(scratch))
         }
     }
 
     private execute(scratch: ScratchInterface): Promise<string> {
-        return Promise.all(scratch.ids.map((id: string) => this.mainTable.updateItem(id, "borrower", "", scratch.borrower)))
-            .then(() => `Successfully returned items '${scratch.ids.toString()}'.`)
+        return Promise.all(scratch.ids.map((id: string) =>
+                this.mainTable.changeBorrower(id, scratch.borrower, "return", scratch.notes)
+            )).then(() => `Successfully returned items '${scratch.ids.toString()}'.`)
     }
 }
 
 /**
  * @param ids IDs of Items
  * @param borrower Name of borrower
+ * @param notes Notes about this action
  */
 interface ScratchInterface {
-    ids?: string[]
-    borrower?: string
+    ids?: string[],
+    borrower?: string,
+    notes?: string
 }
