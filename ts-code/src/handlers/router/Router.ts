@@ -72,7 +72,10 @@ export class Router {
                     return this.routeRequest(number, processedRequest, processedRequest)
                 }
             })
-            .catch(this.logError)
+            .catch((reason: any) => {
+                console.error(reason)
+                throw reason
+            })
     }
 
     private routeRequest(
@@ -145,10 +148,5 @@ export class Router {
                 return "Invalid Request. Please reply with 'help' to get valid operations."
             }
         }
-    }
-
-    private logError(err: any): string {
-        console.error(err)
-        return err
     }
 }
