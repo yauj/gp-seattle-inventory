@@ -42,16 +42,6 @@ export interface SearchIndexSchema {
     val?: DocumentClient.StringSet
 }
 
-export const REQUESTS_TABLE: string = "gp-seattle-inventory-requests"
-/**
- * @param id ID of Request
- * @param status Status of Request
- */
-export interface RequestSchema {
-    id: string,
-    status: "STARTED" | "SUCCESS" | "FAILED"
-}
-
 export const TRANSACTIONS_TABLE: string = "gp-seattle-inventory-transactions"
 /**
  * @param number Phone Number being used for response.
