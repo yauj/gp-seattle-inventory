@@ -132,14 +132,16 @@ class SMSRouter {
             }
         }
 
-        return pinpoint.sendMessages(params, (err: AWSError, _: Pinpoint.SendMessagesResponse) => {
-            if (err) {
-                console.error(`Error encountered when attempting to send to ${this.responseDestination}`)
-                console.error(err)
-            } else {
-                console.log(`Message sent to ${this.responseDestination}`)
-            }
-        }).promise()
+        return pinpoint.sendMessages(params).promise()
+            .then(
+                () => {
+                    console.log(`Message sent to ${this.responseDestination}`)
+                },
+                (reason: any) => {
+                    console.error(`Error encountered when attempting to send to ${this.responseDestination}`)
+                    console.error(reason)
+                }
+            )
     }
 }
 
