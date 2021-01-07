@@ -37,7 +37,13 @@ export class BorrowBatch {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param name Name of batch
+     * @param borrower Name of borrower
+     * @param notes Notes about this action
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.batchTable.get(scratch.name)
             .then((entry: SearchIndexSchema) => {
                 if (entry) {
@@ -52,11 +58,6 @@ export class BorrowBatch {
     }
 }
 
-/**
- * @param name Name of batch
- * @param borrower Name of borrower
- * @param notes Notes about this action
- */
 interface ScratchInterface {
     name?: string,
     borrower?: string,

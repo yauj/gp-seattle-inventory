@@ -34,7 +34,11 @@ export class GetBatch {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param name Name of Batch
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.batchTable.get(scratch.name)
             .then((batchEntry: SearchIndexSchema) => {
                 if (batchEntry) {
@@ -57,9 +61,6 @@ export class GetBatch {
     }
 }
 
-/**
- * @param name Name of Batch
- */
 interface ScratchInterface {
     name?: string
 }

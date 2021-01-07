@@ -1,0 +1,8 @@
+buildspec.yml
+package-lock.json
+template.yml
+tsconfig.json
+/node_modules
+/__dev__
+/__tests__
+/ts-code

@@ -30,16 +30,17 @@ export class UpdateItemNotes {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params for scratch object:
+     * @param id ID of Item
+     * @param note String of the new note.
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.mainTable.updateItem(scratch.id, "notes", scratch.note)
             .then(() => `Successfully updated notes about item '${scratch.id}'`)
     }
 }
 
-/**
- * @param id ID of Item
- * @param note String of the new note.
- */
 interface ScratchInterface {
     id?: string
     note?: string

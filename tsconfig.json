@@ -2,9 +2,9 @@
     "compilerOptions": {
       "target": "ES2018",
       "module": "CommonJS",
+      "declaration": true,
       "noImplicitAny": true,
       "preserveConstEnums": true,
-      "sourceMap": true,
       "outDir": "./"
     },
     "include": ["./ts-code/**/*"],

@@ -33,15 +33,16 @@ export class DeleteBatch {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param name Name of batch
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.batchTable.delete(scratch.name)
             .then(() => `Successfully deleted batch '${scratch.name}'`)
     }
 }
 
-/**
- * @param name Name of batch
- */
 interface ScratchInterface {
     name?: string
 }

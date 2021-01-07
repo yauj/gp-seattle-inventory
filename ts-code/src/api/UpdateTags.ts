@@ -32,16 +32,17 @@ export class UpdateTags {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params for scratch object:
+     * @param name Name of item
+     * @param tags New tags
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.tagTable.update(scratch.name, scratch.tags)
             .then(() => `Successfully updated tags for '${scratch.name}'`)
     }
 }
 
-/**
- * @param name Name of item
- * @param tags New tags
- */
 interface ScratchInterface {
     name?: string
     tags?: string[]

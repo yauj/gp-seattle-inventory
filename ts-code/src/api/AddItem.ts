@@ -64,7 +64,18 @@ export class AddItem {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param id Intended ID of item
+     * @param name Name of Item
+     * @param description Optional description about the item
+     * @param tags Tags to query the item with
+     * @param owner Owner of this item (or location where it's stored if church owned)
+     * @param tags Notes about this specific item.
+     * Params used by router exclusively:
+     * @param createItem Flag to indicate item needs to be created (used by the router function)
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.mainTable.get(scratch.name)
             .then((entry: MainSchema) => {
                 if (entry) {
@@ -82,15 +93,6 @@ export class AddItem {
     }
 }
 
-/**
- * @param id Intended ID of item
- * @param name Name of Item
- * @param createItem Flag to indicate item needs to be created (used by the router function)
- * @param description Optional description about the item
- * @param tags Tags to query the item with
- * @param owner Owner of this item (or location where it's stored if church owned)
- * @param tags Notes about this specific item.
- */
 interface ScratchInterface {
     id?: string,
     name?: string,

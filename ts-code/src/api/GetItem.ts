@@ -31,7 +31,11 @@ export class GetItem {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param key Name or ID of item
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.itemTable.get(scratch.key)
             .then((secondaryEntry: SecondaryIndexSchema) => {
                 if (secondaryEntry) {
@@ -73,9 +77,6 @@ export class GetItem {
     }
 }
 
-/**
- * @param key Name or ID of item
- */
 interface ScratchInterface {
     key?: string
 }

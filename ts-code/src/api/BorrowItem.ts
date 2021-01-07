@@ -36,18 +36,19 @@ export class BorrowItem {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param ids IDs of Items
+     * @param borrower Name of borrower
+     * @param notes Notes about this action
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return Promise.all(scratch.ids.map((id: string) =>
                 this.mainTable.changeBorrower(id, scratch.borrower, "borrow", scratch.notes)
             )).then(() => `Successfully borrowed items '${scratch.ids.toString()}'.`)
     }  
 }
 
-/**
- * @param ids IDs of Items
- * @param borrower Name of borrower
- * @param notes Notes about this action
- */
 interface ScratchInterface {
     ids?: string[],
     borrower?: string,

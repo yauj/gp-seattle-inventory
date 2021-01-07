@@ -60,6 +60,13 @@ export class PrintTable {
 
     /**
      * Scan Table, returning the DynamoDB ScanOutput.
+     * 
+     * Required params in scratch object:
+     * @param tableName Name of target table
+     * Optional DynamoDB Scan Parameters:
+     * @param Limit The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off.
+     * @param ExclusiveStartKey The primary key of the first item that this operation will evaluate. Use the value that was returned for LastEvaluatedKey in the previous operation.
+     * @param FilterExpression A string that contains conditions that DynamoDB applies after the Scan operation, but before the data is returned to you. Items that do not satisfy the FilterExpression criteria are not returned. A FilterExpression is applied after the items have already been read.
      */
     public execute(scratch: ScratchInterface): Promise<DocumentClient.ScanOutput> {
         var params: DocumentClient.ScanInput = {
@@ -90,14 +97,6 @@ export class PrintTable {
     }
 }
 
-/**
- * Required:
- * @param tableName Name of target table
- * Optional DynamoDB Scan Parameters:
- * @param Limit The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off.
- * @param ExclusiveStartKey The primary key of the first item that this operation will evaluate. Use the value that was returned for LastEvaluatedKey in the previous operation.
- * @param FilterExpression A string that contains conditions that DynamoDB applies after the Scan operation, but before the data is returned to you. Items that do not satisfy the FilterExpression criteria are not returned. A FilterExpression is applied after the items have already been read.
- */
 interface ScratchInterface {
     tableName?: string
     Limit?: number

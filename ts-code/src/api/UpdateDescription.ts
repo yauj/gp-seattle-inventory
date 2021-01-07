@@ -30,16 +30,17 @@ export class UpdateDescription {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params for scratch object:
+     * @param name Name of item
+     * @param description New description
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.mainTable.update(scratch.name, "description", scratch.description)
             .then(() => `Successfully updated description of '${scratch.name}'`)
     }
 }
 
-/**
- * @param name Name of item
- * @param description New description
- */
 interface ScratchInterface {
     name?: string
     description?: string

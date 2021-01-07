@@ -36,7 +36,11 @@ export class SearchItem {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params for scratch object:
+     * @param tags List of tags to search for, ordered in the level of importance.
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         var names: TagMap = {}
         
         return Promise.all(scratch.tags.map((tag: string, index: number) => {
@@ -95,9 +99,6 @@ export class SearchItem {
     }
 }
 
-/**
- * @param tags List of tags to search for, ordered in the level of importance.
- */
 interface ScratchInterface {
     tags?: string[]
 }

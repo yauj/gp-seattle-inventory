@@ -33,17 +33,18 @@ export class UpdateItemOwner {
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params for scratch object:
+     * @param id ID of Item
+     * @param currentOwner Name of current owner
+     * @param newOwner Name of new owner
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.mainTable.updateItem(scratch.id, "owner", scratch.newOwner, scratch.currentOwner)
             .then(() => `Successfully updated owner for item '${scratch.id}'`)
     }
 }
 
-/**
- * @param id ID of Item
- * @param currentOwner Name of current owner
- * @param newOwner Name of new owner
- */
 interface ScratchInterface {
     id?: string
     currentOwner?: string

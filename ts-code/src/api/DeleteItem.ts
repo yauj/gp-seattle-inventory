@@ -39,8 +39,11 @@ export class DeleteItem {
             }
         }
     }
-
-    private execute(scratch: ScratchInterface): Promise<string> {
+    /**
+     * Required params in scratch object:
+     * @param id ID of Item
+     */
+    public execute(scratch: ScratchInterface): Promise<string> {
         return this.itemTable.delete(scratch.id)
                 .then((name: string) => this.mainTable.get(name))
                 .then((entry: MainSchema) => {
@@ -56,9 +59,6 @@ export class DeleteItem {
     }
 }
 
-/**
- * @param id ID of Item
- */
 interface ScratchInterface {
     id?: string
 }
