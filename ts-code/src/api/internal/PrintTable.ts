@@ -1,10 +1,10 @@
 import { TransactionsTable } from "../../db/TransactionsTable"
-import { MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE } from "../../db/Schemas"
+import { MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE, BATCH_TABLE, HISTORY_TABLE } from "../../db/Schemas"
 import { DBClient } from "../../injection/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 /**
- * Scan entire table, returning as a string
+ * Scan entire table.
  * 
  * WARNING: THIS IS A EXPENSIVE OPERATION
  */
@@ -22,25 +22,62 @@ export class PrintTable {
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
         if (scratch === undefined) {
             return this.transactionsTable.create(number, PrintTable.NAME)
-                .then(() => "Name of table: (Options: main, items, tags, transactions)")
-        } else {
+                .then(() => "Name of table: (Options: main, batch, history, items, tags, transactions)")
+        } else if (scratch.tableName === undefined) {
             scratch.tableName = request
-            return this.transactionsTable.delete(number)
+            return this.transactionsTable.appendToScratch(number, "tableName", request)
                 .then(() => this.execute(scratch))
+                .then(
+                    (output: DocumentClient.ScanOutput) => this.processSuccess(output, number),
+                    (reason: any) => this.processFailure(reason, number)
+                )
+        } else if (request === "y") {
+            return this.execute(scratch)
+                .then(
+                    (output: DocumentClient.ScanOutput) => this.processSuccess(output, number),
+                    (reason: any) => this.processFailure(reason, number)
+                )
+        } else {
+            return this.transactionsTable.delete(number)
+                .then(() => "Stopped Scanning Table.")
         }
     }
 
-    private execute(scratch: ScratchInterface): Promise<string> {
+    private processSuccess(output: DocumentClient.ScanOutput, number: string): Promise<string> {
+        if (output.LastEvaluatedKey) {
+            return this.transactionsTable.appendToScratch(number, "ExclusiveStartKey", output.LastEvaluatedKey)
+                .then(() => JSON.stringify(output.Items, null, 1) + "\nCONTINUE?")
+        } else {
+            return this.transactionsTable.delete(number)
+                .then(() => JSON.stringify(output.Items, null, 1) + "\nEND")
+        }
+    }
+
+    private processFailure(reason: any, number: string) {
+        return this.transactionsTable.delete(number)
+            .then(() => { throw reason })
+    }
+
+    /**
+     * Scan Table, returning the DynamoDB ScanOutput.
+     */
+    public execute(scratch: ScratchInterface): Promise<DocumentClient.ScanOutput> {
         var params: DocumentClient.ScanInput = {
-            TableName: this.getTableName(scratch.tableName)
+            TableName: this.getTableName(scratch.tableName),
+            Limit: scratch.Limit,
+            ExclusiveStartKey: scratch.ExclusiveStartKey,
+            FilterExpression: scratch.FilterExpression
         }
         return this.client.scan(params)
-            .then((output: DocumentClient.ScanOutput) => JSON.stringify(output.Items))
     }
 
     private getTableName(tableName: string): string {
         if (tableName === "main") {
             return MAIN_TABLE
+        } else if (tableName === "batch") {
+            return BATCH_TABLE
+        } else if (tableName === "history") {
+            return HISTORY_TABLE
         } else if (tableName === "items") {
             return ITEMS_TABLE
         } else if (tableName === "tags") {
@@ -54,8 +91,16 @@ export class PrintTable {
 }
 
 /**
+ * Required:
  * @param tableName Name of target table
+ * Optional DynamoDB Scan Parameters:
+ * @param Limit The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off.
+ * @param ExclusiveStartKey The primary key of the first item that this operation will evaluate. Use the value that was returned for LastEvaluatedKey in the previous operation.
+ * @param FilterExpression A string that contains conditions that DynamoDB applies after the Scan operation, but before the data is returned to you. Items that do not satisfy the FilterExpression criteria are not returned. A FilterExpression is applied after the items have already been read.
  */
 interface ScratchInterface {
     tableName?: string
+    Limit?: number
+    ExclusiveStartKey?: DocumentClient.Key
+    FilterExpression?: string
 }
