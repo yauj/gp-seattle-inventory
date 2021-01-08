@@ -49,6 +49,7 @@ export interface SearchIndexSchema {
 export const HISTORY_TABLE: string = "gp-seattle-inventory-history"
 /**
  * @param key Random Time Related Unique Key, where the first part of the key is the creation time.
+ * @param name Name of Item
  * @param id ID of Item
  * @param borrower Name of Borrower
  * @param action Either borrow or return the specified.
@@ -57,6 +58,7 @@ export const HISTORY_TABLE: string = "gp-seattle-inventory-history"
  */
 export interface HistorySchema {
     key: string,
+    name: string,
     id: string,
     borrower: string,
     action: "borrow" | "return",

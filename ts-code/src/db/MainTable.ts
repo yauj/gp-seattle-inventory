@@ -226,6 +226,7 @@ export class MainTable {
         var key: string = `${curEpochMs}-${id}`
         var item: HistorySchema = {
             key: key,
+            name: name,
             id: id,
             borrower: borrower,
             action: action,
