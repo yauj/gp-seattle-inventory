@@ -58,6 +58,8 @@ class SMSRouter {
             }
         }
 
+        console.log(`Sending response to ${this.responseDestination}`)
+
         return pinpoint.sendMessages(params).promise()
             .then(
                 () => {

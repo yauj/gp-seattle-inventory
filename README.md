@@ -11,7 +11,7 @@ There are a list of APIs that have been implemented in the api folder. The API c
     - This is the name used to initialize the router transaction
 - `public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string>`
     - This is the main function that is used to understand router requests.
-- `public execute(scratch: ScratchInterface): Promise<string>`
+- `public execute(scratch: ScratchInterface): Promise<?>`
     - This is the main function that is used to execute the specific API. 
     **This is the function that should be used to call the API from code.**
 - `interface ScratchInterface`
@@ -31,8 +31,3 @@ then running the following:
 - `npm install`
 - `npm run build`
 - From the `__dev__/handlers/router` directory: `node CLIRouter.js`
-
-## Improvements
-
-- TTL for History
-- Scheduling
