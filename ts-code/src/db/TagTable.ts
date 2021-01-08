@@ -1,5 +1,5 @@
 import { MAIN_TABLE, MainSchema, TAGS_TABLE, SearchIndexSchema } from "./Schemas"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 export class TagTable {

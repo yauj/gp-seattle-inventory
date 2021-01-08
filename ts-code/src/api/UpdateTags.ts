@@ -1,6 +1,8 @@
 import { TagTable } from "../db/TagTable"
 import { TransactionsTable } from "../db/TransactionsTable"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Update tags of item family
@@ -10,10 +12,12 @@ export class UpdateTags {
 
     private readonly tagTable: TagTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.tagTable = new TagTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -38,8 +42,13 @@ export class UpdateTags {
      * @param tags New tags
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return this.tagTable.update(scratch.name, scratch.tags)
-            .then(() => `Successfully updated tags for '${scratch.name}'`)
+        return emitAPIMetrics(
+            () => {
+                return this.tagTable.update(scratch.name, scratch.tags)
+                    .then(() => `Successfully updated tags for '${scratch.name}'`)
+            },
+            UpdateTags.NAME, this.metrics
+        )
     }
 }
 

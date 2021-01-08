@@ -1,6 +1,8 @@
 import { MainTable } from "../db/MainTable"
 import { TransactionsTable } from "../db/TransactionsTable"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Update notes about a item.
@@ -10,10 +12,12 @@ export class UpdateItemNotes {
 
     private readonly mainTable: MainTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.mainTable = new MainTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -36,8 +40,13 @@ export class UpdateItemNotes {
      * @param note String of the new note.
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return this.mainTable.updateItem(scratch.id, "notes", scratch.note)
-            .then(() => `Successfully updated notes about item '${scratch.id}'`)
+        return emitAPIMetrics(
+            () => {
+                return this.mainTable.updateItem(scratch.id, "notes", scratch.note)
+                    .then(() => `Successfully updated notes about item '${scratch.id}'`)
+            },
+            UpdateItemNotes.NAME, this.metrics
+        )
     }
 }
 

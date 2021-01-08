@@ -1,6 +1,8 @@
 import { Router } from "./Router"
-import { DBClient } from "../../injection/DBClient"
-import { DDBClient } from "../../injection/DDBClient"
+import { DBClient } from "../../injection/db/DBClient"
+import { DDBClient } from "../../injection/db/DDBClient"
+import { CloudWatchClient } from "../../injection/metrics/CloudWatchClient"
+import { MetricsClient } from "../../injection/metrics/MetricsClient"
 import { SNSEvent, SNSEventRecord, SNSHandler } from "aws-lambda"
 import { Pinpoint } from "aws-sdk"
 
@@ -15,6 +17,7 @@ export const handler: SNSHandler = async (event: SNSEvent) => {
 
 class SMSRouter {
     private db: DBClient = new DDBClient()
+    private cw: MetricsClient = new CloudWatchClient("Lambda")
     private request: string
     private responseOrigination: string
     private responseDestination: string
@@ -32,7 +35,7 @@ class SMSRouter {
     public processRecord(): Promise<any> {
         console.log(`Starting request from ${this.responseDestination}`)
 
-        return new Router(this.db).processRequest(this.request, this.responseDestination)
+        return new Router(this.db, this.cw).processRequest(this.request, this.responseDestination)
             .then((response: string) => this.sendMessage(response))
     }
 
@@ -57,8 +60,6 @@ class SMSRouter {
                 }
             }
         }
-
-        console.log(`Sending response to ${this.responseDestination}`)
 
         return pinpoint.sendMessages(params).promise()
             .then(

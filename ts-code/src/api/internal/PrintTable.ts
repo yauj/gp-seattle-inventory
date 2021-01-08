@@ -1,6 +1,8 @@
 import { TransactionsTable } from "../../db/TransactionsTable"
 import { MAIN_TABLE, ITEMS_TABLE, TAGS_TABLE, TRANSACTIONS_TABLE, BATCH_TABLE, HISTORY_TABLE } from "../../db/Schemas"
-import { DBClient } from "../../injection/DBClient"
+import { DBClient } from "../../injection/db/DBClient"
+import { MetricsClient } from "../../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../../metrics/MetricsHelper"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 
 /**
@@ -13,10 +15,12 @@ export class PrintTable {
 
     private readonly client: DBClient
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.client = client
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -69,13 +73,18 @@ export class PrintTable {
      * @param FilterExpression A string that contains conditions that DynamoDB applies after the Scan operation, but before the data is returned to you. Items that do not satisfy the FilterExpression criteria are not returned. A FilterExpression is applied after the items have already been read.
      */
     public execute(scratch: ScratchInterface): Promise<DocumentClient.ScanOutput> {
-        var params: DocumentClient.ScanInput = {
-            TableName: this.getTableName(scratch.tableName),
-            Limit: scratch.Limit,
-            ExclusiveStartKey: scratch.ExclusiveStartKey,
-            FilterExpression: scratch.FilterExpression
-        }
-        return this.client.scan(params)
+        return emitAPIMetrics(
+            () => {
+                var params: DocumentClient.ScanInput = {
+                    TableName: this.getTableName(scratch.tableName),
+                    Limit: scratch.Limit,
+                    ExclusiveStartKey: scratch.ExclusiveStartKey,
+                    FilterExpression: scratch.FilterExpression
+                }
+                return this.client.scan(params)
+            },
+            PrintTable.NAME, this.metrics
+        )
     }
 
     private getTableName(tableName: string): string {

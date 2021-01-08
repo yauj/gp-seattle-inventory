@@ -1,7 +1,8 @@
 import { Router } from "../../../src/handlers/router/Router"
-import { DBClient } from "../../../src/injection/DBClient"
-import { DDBClient } from "../../../src/injection/DDBClient"
-import { LocalDBClient } from "../../../__tests__/injection/LocalDBClient"
+import { DBClient } from "../../../src/injection/db/DBClient"
+import { DDBClient } from "../../../src/injection/db/DDBClient"
+import { CloudWatchClient } from "../../../src/injection/metrics/CloudWatchClient"
+import { LocalDBClient } from "../../../__tests__/injection/db/LocalDBClient"
 import { userInfo } from "os"
 
 const prompt = require("prompt")
@@ -21,10 +22,15 @@ function run() {
     if (process.argv[2] === "remote") {
         console.log("CONNECTING TO PRODUCTION DATABASE")
         client = new DDBClient({ region: "us-west-2" })
+        var cw: CloudWatchClient = new CloudWatchClient(
+            `${userInfo().username}-Local`,
+            { region: "us-west-2" }
+        )
+        router = new Router(client, cw)
     } else {
         client = new LocalDBClient()
+        router = new Router(client)
     }
-    router = new Router(client)
 
     prompt.start()
     getSchema(undefined, { response: "help" })

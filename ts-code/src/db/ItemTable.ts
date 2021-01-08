@@ -1,5 +1,5 @@
 import { MAIN_TABLE, ItemSchema, ITEMS_TABLE, SecondaryIndexSchema } from "./Schemas";
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { AWSError } from "aws-sdk";
 

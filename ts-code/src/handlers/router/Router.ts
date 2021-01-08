@@ -1,3 +1,10 @@
+import { TransactionsTable } from "../../db/TransactionsTable"
+import { TransactionsSchema } from "../../db/Schemas"
+import { DBClient } from "../../injection/db/DBClient"
+import { MetricsClient } from "../../injection/metrics/MetricsClient"
+import { DocumentClient } from "aws-sdk/clients/dynamodb"
+
+import { PrintTable } from "../../api/internal/PrintTable"
 import { GetItem } from "../../api/GetItem"
 import { SearchItem } from "../../api/SearchItem"
 import { BorrowItem } from "../../api/BorrowItem"
@@ -8,11 +15,6 @@ import { UpdateDescription } from "../../api/UpdateDescription"
 import { UpdateItemNotes } from "../../api/UpdateItemNotes"
 import { UpdateItemOwner } from "../../api/UpdateItemOwner"
 import { DeleteItem } from "../../api/DeleteItem"
-import { PrintTable } from "../../api/internal/PrintTable"
-import { TransactionsTable } from "../../db/TransactionsTable"
-import { TransactionsSchema } from "../../db/Schemas"
-import { DBClient } from "../../injection/DBClient"
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { CreateBatch } from "../../api/CreateBatch"
 import { GetBatch } from "../../api/GetBatch"
 import { DeleteBatch } from "../../api/DeleteBatch"
@@ -47,10 +49,12 @@ const ADVANCED_HELP_MENU: string = "Mutating Operations:\n"
 export class Router {
     private readonly client: DBClient
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.client = client
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     /**
@@ -87,37 +91,37 @@ export class Router {
         if (request === "abort") {
             return this.abort(number, scratch)
         } else if (type === PrintTable.NAME) {
-            return new PrintTable(this.client).router(number, request, scratch)
+            return new PrintTable(this.client, this.metrics).router(number, request, scratch)
         } else if (type === GetItem.NAME) {
-            return new GetItem(this.client).router(number, request, scratch)
+            return new GetItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === SearchItem.NAME) {
-            return new SearchItem(this.client).router(number, request, scratch)
+            return new SearchItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === BorrowItem.NAME) {
-            return new BorrowItem(this.client).router(number, request, scratch)
+            return new BorrowItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === ReturnItem.NAME) {
-            return new ReturnItem(this.client).router(number, request, scratch)
+            return new ReturnItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === AddItem.NAME) {
-            return new AddItem(this.client).router(number, request, scratch)
+            return new AddItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === UpdateDescription.NAME) {
-            return new UpdateDescription(this.client).router(number, request, scratch)
+            return new UpdateDescription(this.client, this.metrics).router(number, request, scratch)
         } else if (type === UpdateTags.NAME) {
-            return new UpdateTags(this.client).router(number, request, scratch)
+            return new UpdateTags(this.client, this.metrics).router(number, request, scratch)
         } else if (type === UpdateItemNotes.NAME) {
-            return new UpdateItemNotes(this.client).router(number, request, scratch)
+            return new UpdateItemNotes(this.client, this.metrics).router(number, request, scratch)
         } else if (type === UpdateItemOwner.NAME) {
-            return new UpdateItemOwner(this.client).router(number, request, scratch)
+            return new UpdateItemOwner(this.client, this.metrics).router(number, request, scratch)
         } else if (type === DeleteItem.NAME) {
-            return new DeleteItem(this.client).router(number, request, scratch)
+            return new DeleteItem(this.client, this.metrics).router(number, request, scratch)
         } else if (type === GetBatch.NAME) {
-            return new GetBatch(this.client).router(number, request, scratch)
+            return new GetBatch(this.client, this.metrics).router(number, request, scratch)
         } else if (type === BorrowBatch.NAME) {
-            return new BorrowBatch(this.client).router(number, request, scratch)
+            return new BorrowBatch(this.client, this.metrics).router(number, request, scratch)
         } else if (type === ReturnBatch.NAME) {
-            return new ReturnBatch(this.client).router(number, request, scratch)
+            return new ReturnBatch(this.client, this.metrics).router(number, request, scratch)
         } else if (type === CreateBatch.NAME) {
-            return new CreateBatch(this.client).router(number, request, scratch)
+            return new CreateBatch(this.client, this.metrics).router(number, request, scratch)
         } else if (type === DeleteBatch.NAME) {
-            return new DeleteBatch(this.client).router(number, request, scratch)
+            return new DeleteBatch(this.client, this.metrics).router(number, request, scratch)
         } else {
             return this.footer(number, request, scratch)
         }

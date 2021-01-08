@@ -1,6 +1,8 @@
 import { MainTable } from "../db/MainTable"
 import { TransactionsTable } from "../db/TransactionsTable"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Update description of item family
@@ -10,10 +12,12 @@ export class UpdateDescription {
 
     private readonly mainTable: MainTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.mainTable = new MainTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -36,8 +40,13 @@ export class UpdateDescription {
      * @param description New description
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return this.mainTable.update(scratch.name, "description", scratch.description)
-            .then(() => `Successfully updated description of '${scratch.name}'`)
+        return emitAPIMetrics(
+            () => {
+                return this.mainTable.update(scratch.name, "description", scratch.description)
+                    .then(() => `Successfully updated description of '${scratch.name}'`)
+            },
+            UpdateDescription.NAME, this.metrics
+        )
     }
 }
 

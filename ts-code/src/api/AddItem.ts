@@ -3,7 +3,9 @@ import { ItemTable } from "../db/ItemTable"
 import { TagTable } from "../db/TagTable"
 import { TransactionsTable } from "../db/TransactionsTable"
 import { MainSchema } from "../db/Schemas"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Adds item to item inventory table.
@@ -15,12 +17,14 @@ export class AddItem {
     private readonly itemTable: ItemTable
     private readonly tagTable: TagTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.mainTable = new MainTable(client)
         this.itemTable = new ItemTable(client)
         this.tagTable = new TagTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -76,20 +80,27 @@ export class AddItem {
      * @param createItem Flag to indicate item needs to be created (used by the router function)
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return this.mainTable.get(scratch.name)
-            .then((entry: MainSchema) => {
-                if (entry) {
-                    // Object Exists. No need to add description
-                    return
-                } else {
-                    // Add new Object
-                    return this.mainTable.create(scratch.name, scratch.description)
-                        .then(() => this.tagTable.create(scratch.name, scratch.tags))
-                }
-            }).then(() => {
-                return this.itemTable.create(scratch.id, scratch.name, scratch.owner, scratch.notes)
-                    .then(() => `Created Item with RMS ID: ${scratch.id}`)       
-            })
+        return emitAPIMetrics(
+            () => {
+                return this.mainTable.get(scratch.name)
+                .then((entry: MainSchema) => {
+                    if (entry) {
+                        // Object Exists. No need to add description
+                        return
+                    } else {
+                        // Add new Object
+                        return this.mainTable.create(scratch.name, scratch.description)
+                            .then(() => this.tagTable.create(scratch.name, scratch.tags))
+                    }
+                }).then(() => {
+                    return this.itemTable.create(scratch.id, scratch.name, scratch.owner, scratch.notes)
+                        .then(() => `Created Item with RMS ID: ${scratch.id}`)       
+                })
+            },
+            AddItem.NAME, this.metrics
+        )
+        
+        
     }
 }
 

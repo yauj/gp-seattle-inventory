@@ -1,6 +1,8 @@
 import { BatchTable } from "../db/BatchTable"
 import { TransactionsTable } from "../db/TransactionsTable"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Delete Batch
@@ -10,10 +12,12 @@ export class DeleteBatch {
 
     private readonly batchTable: BatchTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.batchTable = new BatchTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -38,8 +42,13 @@ export class DeleteBatch {
      * @param name Name of batch
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return this.batchTable.delete(scratch.name)
-            .then(() => `Successfully deleted batch '${scratch.name}'`)
+        return emitAPIMetrics(
+            () => {
+                return this.batchTable.delete(scratch.name)
+                    .then(() => `Successfully deleted batch '${scratch.name}'`)
+            },
+            DeleteBatch.NAME, this.metrics
+        )
     }
 }
 

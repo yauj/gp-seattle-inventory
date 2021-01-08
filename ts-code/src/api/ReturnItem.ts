@@ -1,6 +1,8 @@
 import { MainTable } from "../db/MainTable"
 import { TransactionsTable } from "../db/TransactionsTable"
-import { DBClient } from "../injection/DBClient"
+import { DBClient } from "../injection/db/DBClient"
+import { MetricsClient } from "../injection/metrics/MetricsClient"
+import { emitAPIMetrics } from "../metrics/MetricsHelper"
 
 /**
  * Return specified item
@@ -10,10 +12,12 @@ export class ReturnItem {
 
     private readonly mainTable: MainTable
     private readonly transactionsTable: TransactionsTable
+    private readonly metrics?: MetricsClient
 
-    public constructor(client: DBClient) {
+    public constructor(client: DBClient, metrics?: MetricsClient) {
         this.mainTable = new MainTable(client)
         this.transactionsTable = new TransactionsTable(client)
+        this.metrics = metrics
     }
 
     public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string> {
@@ -43,9 +47,14 @@ export class ReturnItem {
      * @param notes Notes about this action
      */
     public execute(scratch: ScratchInterface): Promise<string> {
-        return Promise.all(scratch.ids.map((id: string) =>
-                this.mainTable.changeBorrower(id, scratch.borrower, "return", scratch.notes)
-            )).then(() => `Successfully returned items '${scratch.ids.toString()}'.`)
+        return emitAPIMetrics(
+            () => {
+                return Promise.all(scratch.ids.map((id: string) =>
+                    this.mainTable.changeBorrower(id, scratch.borrower, "return", scratch.notes)
+                )).then(() => `Successfully returned items '${scratch.ids.toString()}'.`)
+            },
+            ReturnItem.NAME, this.metrics
+        )
     }
 }
 

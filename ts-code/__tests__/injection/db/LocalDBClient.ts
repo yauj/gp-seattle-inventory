@@ -1,4 +1,4 @@
-import { DBClient } from "../../src/injection/DBClient";
+import { DBClient } from "../../../src/injection/db/DBClient";
 import { AWSError } from "aws-sdk"
 import { DocumentClient } from "aws-sdk/clients/dynamodb"
 import { PromiseResult } from "aws-sdk/lib/request"
@@ -7,7 +7,7 @@ import {
     ITEMS_TABLE, SecondaryIndexSchema,
     TAGS_TABLE, SearchIndexSchema,
     TRANSACTIONS_TABLE, TransactionsSchema
-} from "../../src/db/Schemas"
+} from "../../../src/db/Schemas"
 
 interface LocalDB {
     main: { [key: string]: MainSchema },
