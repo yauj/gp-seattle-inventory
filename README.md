@@ -5,18 +5,20 @@ This package contains different APIs that perform operations against the relevan
 ## APIs
 
 There are a list of APIs that have been implemented in the api folder. The API classes all contain the following:
-- `public constructor(client: DBClient)`
-    - Public constructor to initialize the API class.
+- `public constructor(client: DBClient, metrics?: MetricsClient)`
+    - Public constructor to initialize the API class. Requires a `DBClient`, which main current
+      implementation is `DDBClient`. Optionally, accepts a `MetricsClient`, which main current
+      implementation is `CloudWatchClient`.
 - `public static NAME: string`
     - This is the name used to initialize the router transaction
 - `public router(number: string, request: string, scratch?: ScratchInterface): string | Promise<string>`
     - This is the main function that is used to understand router requests.
 - `public execute(scratch: ScratchInterface): Promise<?>`
     - This is the main function that is used to execute the specific API. 
-    **This is the function that should be used to call the API from code.**
+      **This is the function that should be used to call the API from code.**
 - `interface ScratchInterface`
     - Interface defining the variables that are expected for the execute function.
-    Note that this interface is not exported.
+      Note that this interface is not exported.
 
 ## Router
 

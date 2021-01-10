@@ -2,6 +2,7 @@ import { Router } from "../../../src/handlers/router/Router"
 import { DBClient } from "../../../src/injection/db/DBClient"
 import { DDBClient } from "../../../src/injection/db/DDBClient"
 import { CloudWatchClient } from "../../../src/injection/metrics/CloudWatchClient"
+import { MetricsClient } from "../../../src/injection/metrics/MetricsClient"
 import { LocalDBClient } from "../../../__tests__/injection/db/LocalDBClient"
 import { userInfo } from "os"
 
@@ -22,11 +23,11 @@ function run() {
     if (process.argv[2] === "remote") {
         console.log("CONNECTING TO PRODUCTION DATABASE")
         client = new DDBClient({ region: "us-west-2" })
-        var cw: CloudWatchClient = new CloudWatchClient(
+        var metrics: MetricsClient = new CloudWatchClient(
             `${userInfo().username}-Local`,
             { region: "us-west-2" }
         )
-        router = new Router(client, cw)
+        router = new Router(client, metrics)
     } else {
         client = new LocalDBClient()
         router = new Router(client)
