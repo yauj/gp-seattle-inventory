@@ -60,7 +60,7 @@ export class ReturnBatch {
                             throw Error(`Could not find batch '${scratch.name}'`)
                         }
                     })
-                    .then(() => `Successfully borrowed items in batch '${scratch.name}'`)
+                    .then(() => `Successfully returned items in batch '${scratch.name}'`)
             },
             ReturnBatch.NAME, this.metrics
         )
